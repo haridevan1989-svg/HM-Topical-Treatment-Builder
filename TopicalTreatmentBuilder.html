@@ -1,0 +1,1761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Topical Treatment Builder — Dr H. Balachandran</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:#F0EDE8;color:#1C1814;min-height:100vh;}
+
+.app-header{background:#1C1814;color:#FAF7F2;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:100;}
+.hdr-left{display:flex;align-items:center;gap:14px;}
+.hdr-logo{font-family:'Libre Baskerville',serif;font-size:15px;font-weight:700;}
+.hdr-logo span{color:#C4503A;}
+.hdr-div{width:1px;height:18px;background:rgba(255,255,255,.15);}
+.hdr-sub{font-size:11px;color:#9C9089;letter-spacing:.05em;}
+.hdr-right{font-size:11px;color:#9C9089;text-align:right;line-height:1.7;}
+.hdr-right strong{color:#FAF7F2;font-size:12px;display:block;}
+
+.app{max-width:1160px;margin:0 auto;padding:32px 24px 100px;}
+
+.step-row{margin-bottom:28px;}
+.step-lbl{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#B8AFA6;margin-bottom:10px;}
+
+.patient-row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;}
+.fg{display:flex;flex-direction:column;gap:5px;}
+.fg label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6B6157;}
+.fg input{border:1.5px solid #DDD6CE;border-radius:4px;padding:9px 14px;font-family:'DM Sans',sans-serif;font-size:14px;background:#fff;color:#1C1814;outline:none;transition:border-color .15s;}
+.fg input:focus{border-color:#1C1814;}
+.fg.w220 input{width:220px;} .fg.w160 input{width:160px;} .fg.w140 input{width:140px;}
+
+.drug-row{display:flex;gap:10px;}
+.drug-btn{flex:1;padding:14px 18px;border-radius:6px;border:2px solid #DDD6CE;background:#fff;cursor:pointer;text-align:left;transition:all .15s;}
+.drug-btn:hover{border-color:#B8AFA6;}
+.drug-btn.sel-efudix{border-color:#C4503A;background:#FBF0EE;}
+.drug-btn.sel-aldara{border-color:#3A6B4C;background:#EBF3EE;}
+.drug-btn.sel-klisyri{border-color:#2C6EAB;background:#E8F0F8;}
+.drug-btn.sel-compound{border-color:#7B4FA0;background:#F3EEF9;}
+.zone-disabled{opacity:0.28;cursor:not-allowed !important;}
+.klisyri-banner{background:#E8F0F8;border:1.5px solid #2C6EAB;border-radius:5px;padding:9px 14px;font-size:12.5px;color:#2C6EAB;margin-bottom:14px;line-height:1.5;}
+.klisyri-banner strong{font-weight:600;}
+.drug-name{font-family:'Libre Baskerville',serif;font-size:16px;font-weight:700;}
+.drug-gen{font-size:12px;color:#6B6157;margin-top:2px;}
+
+.builder{display:grid;grid-template-columns:580px 1fr;gap:24px;align-items:start;}
+
+.diagram-card{background:#fff;border-radius:8px;border:1px solid #DDD6CE;padding:20px;position:sticky;top:68px;}
+.diagram-hint{font-size:11px;color:#B8AFA6;text-align:center;margin-bottom:8px;}
+
+.diag-tabs{display:flex;gap:4px;margin-bottom:10px;}
+.diag-tab{flex:1;padding:6px 4px;border-radius:4px;border:1.5px solid #DDD6CE;background:#F5F2EE;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;color:#6B6157;cursor:pointer;text-align:center;transition:all .12s;}
+.diag-tab:hover{border-color:#B8AFA6;}
+.diag-tab.active{border-color:#1C1814;background:#1C1814;color:#FAF7F2;}
+.phase-legend{margin-top:10px;display:flex;flex-direction:column;gap:4px;}
+.legend-item{display:flex;align-items:center;gap:7px;padding:4px 8px;border-radius:4px;}
+.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.legend-name{font-size:11px;font-weight:500;}
+.legend-date{font-size:10px;color:#9C9089;margin-left:auto;}
+
+.zones-col{display:flex;flex-direction:column;gap:0;}
+
+.free-zone-row{display:flex;gap:8px;margin-bottom:14px;align-items:center;}
+.free-zone-input{flex:1;border:1.5px solid #DDD6CE;border-radius:4px;padding:9px 12px;font-family:'DM Sans',sans-serif;font-size:13px;background:#fff;color:#1C1814;outline:none;}
+.free-zone-input::placeholder{color:#C0B8B0;}
+.free-zone-input:focus{border-color:#1C1814;outline:none;}
+.free-zone-add{padding:9px 16px;border-radius:4px;border:none;background:#1C1814;color:#FAF7F2;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;white-space:nowrap;}
+.free-zone-add:hover{opacity:.8;} .free-zone-add:disabled{opacity:.35;cursor:not-allowed;}
+
+.empty-state{background:#fff;border:1.5px dashed #DDD6CE;border-radius:6px;padding:48px 24px;text-align:center;color:#B8AFA6;font-size:14px;margin-bottom:12px;}
+.empty-icon{font-size:28px;margin-bottom:8px;}
+
+.timeline-preview{background:#fff;border:1px solid #DDD6CE;border-radius:6px;padding:16px 18px;margin-bottom:16px;}
+.tl-title{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#B8AFA6;margin-bottom:12px;}
+.tl-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.tl-row:last-child{margin-bottom:0;}
+.tl-pill{padding:3px 10px;border-radius:10px;font-size:11px;font-weight:500;white-space:nowrap;min-width:66px;text-align:center;}
+.tl-bar-wrap{flex:1;height:26px;background:#F5F2EE;border-radius:4px;overflow:hidden;}
+.tl-bar{height:100%;border-radius:4px;display:flex;align-items:center;padding:0 9px;}
+.tl-bar-label{font-size:10.5px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tl-dates{font-size:10.5px;color:#9C9089;white-space:nowrap;}
+
+.phase-section{margin-bottom:12px;}
+.phase-header{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:5px 5px 0 0;background:#F5F2EE;border:1.5px solid #DDD6CE;border-bottom:none;}
+.phase-pill{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:500;letter-spacing:.06em;}
+.phase-dates{font-size:12px;color:#6B6157;margin-left:auto;}
+
+.zone-card{background:#fff;border:1.5px solid #DDD6CE;border-top:none;overflow:hidden;}
+.zone-card:last-child{border-radius:0 0 5px 5px;}
+.zone-hd{display:flex;align-items:center;gap:8px;padding:10px 14px;background:#FAFAF8;cursor:grab;user-select:none;}
+.zone-hd:active{cursor:grabbing;}
+.drag-handle{color:#C0B8B0;font-size:14px;flex-shrink:0;}
+.zone-phase-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.zone-lbl{font-size:13.5px;font-weight:500;flex:1;}
+.custom-badge{font-size:10px;text-transform:uppercase;background:#F0EDE8;color:#9C9089;padding:1px 6px;border-radius:8px;margin-left:4px;}
+.zone-controls{display:flex;align-items:center;gap:6px;margin-left:auto;}
+.phase-select-sm{border:1.5px solid #DDD6CE;border-radius:4px;padding:3px 6px;font-family:'DM Sans',sans-serif;font-size:11px;background:#F5F2EE;color:#1C1814;outline:none;cursor:pointer;}
+.zone-x{background:none;border:none;font-size:18px;color:#C0B8B0;cursor:pointer;line-height:1;padding:0 2px;}
+.zone-x:hover{color:#C4503A;}
+
+.zone-body{padding:11px 14px;display:flex;flex-direction:column;gap:9px;}
+.mini-lbl{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#B8AFA6;margin-bottom:4px;}
+.ind-select{width:100%;border:1.5px solid #DDD6CE;border-radius:4px;padding:6px 10px;font-family:'DM Sans',sans-serif;font-size:13px;background:#F5F2EE;color:#1C1814;outline:none;}
+.info-box{background:#F5F2EE;border-radius:4px;padding:9px 12px;font-size:12px;color:#6B6157;line-height:1.55;}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px 14px;margin-bottom:6px;}
+.info-item strong{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#9C9089;font-weight:500;margin-bottom:1px;}
+.info-note{font-size:11px;color:#8B7E74;border-top:1px solid #DDD6CE;padding-top:5px;}
+.notes-ta{width:100%;border:1.5px solid #DDD6CE;border-radius:4px;padding:8px 10px;font-family:'DM Sans',sans-serif;font-size:13px;background:#fff;color:#1C1814;outline:none;resize:vertical;min-height:54px;line-height:1.5;}
+.notes-ta::placeholder{color:#C0B8B0;}
+
+.gen-row{display:flex;align-items:center;justify-content:flex-end;gap:14px;margin-top:16px;}
+.gen-hint{font-size:12px;color:#B8AFA6;}
+.gen-btn{padding:12px 28px;border-radius:5px;border:none;background:#1C1814;color:#FAF7F2;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;letter-spacing:.02em;}
+.gen-btn:hover{opacity:.85;} .gen-btn:disabled{opacity:.35;cursor:not-allowed;}
+
+/* ── PDF / Print modal ── */
+.overlay{position:fixed;inset:0;background:rgba(28,24,20,.65);z-index:200;display:flex;align-items:flex-start;justify-content:center;padding:28px 16px;overflow-y:auto;}
+.modal{background:#FAF7F2;width:820px;max-width:100%;border-radius:6px;padding:48px 52px 56px;position:relative;}
+.modal-close{position:absolute;top:14px;right:18px;background:none;border:none;font-size:24px;color:#9C9089;cursor:pointer;line-height:1;}
+.modal-close:hover{color:#1C1814;}
+
+.m-header{border-top:3px solid #1C1814;border-bottom:1px solid #DDD6CE;padding:20px 0 16px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:flex-end;}
+.m-practice{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#6B6157;margin-bottom:5px;}
+.m-title{font-family:'Libre Baskerville',serif;font-size:26px;font-weight:700;letter-spacing:-0.01em;}
+.m-title em{font-style:italic;}
+.m-meta{text-align:right;font-size:12px;color:#6B6157;line-height:1.8;}
+.m-meta strong{font-family:'Libre Baskerville',serif;font-size:13px;color:#1C1814;display:block;}
+
+.m-patient{background:#1C1814;color:#FAF7F2;border-radius:4px;padding:14px 20px;margin-bottom:24px;display:flex;gap:28px;align-items:center;flex-wrap:wrap;}
+.m-patient .pl{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#B8AFA6;margin-bottom:3px;}
+.m-patient .pv{font-family:'Libre Baskerville',serif;font-size:15px;}
+.m-pdiv{width:1px;height:36px;background:rgba(255,255,255,.15);}
+
+.m-slbl{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#8B7E74;font-weight:700;margin:24px 0 12px;padding-bottom:6px;border-bottom:1.5px solid #DDD6CE;}
+
+.m-rx{background:#fff;border:1px solid #DDD6CE;border-radius:4px;padding:15px 18px;margin-bottom:8px;}
+.m-rx-name{font-family:'Libre Baskerville',serif;font-size:17px;font-weight:700;}
+.m-rx-name span{font-size:13px;font-weight:400;font-style:italic;color:#6B6157;}
+.m-rx-detail{font-size:12px;color:#6B6157;margin:3px 0 11px;}
+.m-rx-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.m-rx-cell{background:#F5F2EE;border-radius:3px;padding:8px 10px;}
+.m-rx-cell .cl{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#B8AFA6;margin-bottom:2px;}
+.m-rx-cell .cv{font-size:12px;font-weight:500;}
+
+.m-tl-row{display:flex;align-items:center;gap:12px;margin-bottom:8px;}
+.m-tl-pill{padding:3px 10px;border-radius:10px;font-size:11px;font-weight:500;min-width:68px;text-align:center;}
+.m-tl-info{flex:1;font-size:12.5px;}
+.m-tl-dates{font-size:11px;color:#9C9089;white-space:nowrap;}
+
+.m-phase-block{margin-bottom:20px;}
+.m-phase-hd{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:4px 4px 0 0;border:1px solid #DDD6CE;border-bottom:none;}
+.m-phase-hd-pill{padding:3px 12px;border-radius:10px;font-size:11px;font-weight:600;letter-spacing:.06em;}
+.m-phase-hd-dates{font-size:12px;color:#6B6157;margin-left:auto;}
+.m-zone{background:#fff;border:1px solid #DDD6CE;padding:14px 16px;border-top:none;}
+.m-zone:last-child{border-radius:0 0 4px 4px;}
+.m-zone-head{font-size:14px;font-weight:600;margin-bottom:5px;}
+.m-ind-chip{display:inline-block;font-size:11px;padding:2px 9px;border-radius:10px;font-weight:500;margin-bottom:9px;}
+.m-zone-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px 20px;margin-bottom:7px;}
+.m-zone-row{font-size:12.5px;} .m-zone-row span{color:#6B6157;}
+.m-zone-clinote{font-size:12px;color:#6B6157;font-style:italic;border-top:1px solid #EEEBE6;padding-top:6px;margin-top:4px;}
+.m-zone-drtext{background:#F5F2EE;border-radius:3px;padding:8px 10px;margin-top:8px;font-size:12.5px;}
+.m-zone-drtext strong{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#6B6157;margin-bottom:3px;}
+
+.m-gen{background:#fff;border:1px solid #DDD6CE;border-radius:4px;padding:14px 16px;margin-bottom:8px;}
+.m-gen ul{padding-left:18px;}
+.m-gen li{font-size:13px;margin-bottom:8px;line-height:1.65;}
+.m-gen li:last-child{margin-bottom:0;}
+
+.m-early{background:#fff;border:1.5px solid #F0D8D4;border-left:4px solid #C4503A;border-radius:4px;padding:15px 18px;}
+.m-early-intro{font-size:13px;color:#1C1814;margin-bottom:13px;line-height:1.55;padding-bottom:11px;border-bottom:1px solid #F0E0DC;}
+.m-early-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:13px;}
+.m-early-item{display:flex;gap:9px;align-items:flex-start;}
+.m-early-icon{font-size:13px;flex-shrink:0;margin-top:1px;}
+.m-early-head{font-size:13px;font-weight:500;color:#1C1814;margin-bottom:2px;}
+.m-early-body{font-size:11.5px;color:#6B6157;line-height:1.5;}
+.m-early-footer{font-size:12px;color:#9C9089;font-style:italic;border-top:1px solid #F0E0DC;padding-top:9px;line-height:1.5;}
+
+.m-footer{border-top:1px solid #DDD6CE;margin-top:32px;padding-top:14px;display:flex;justify-content:space-between;font-size:11px;color:#B8AFA6;}
+.sig-line{width:150px;height:1px;background:#DDD6CE;margin:20px 0 5px auto;}
+
+.m-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;}
+.btn-back{padding:10px 20px;border-radius:4px;border:1.5px solid #DDD6CE;background:transparent;color:#6B6157;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;}
+.btn-print{padding:10px 24px;border-radius:4px;border:none;background:#1C1814;color:#FAF7F2;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;}
+.btn-print:hover{opacity:.85;}
+.btn-copy{padding:10px 22px;border-radius:4px;border:none;background:#2C6EAB;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:background .2s;}
+.btn-copy:hover{background:#1E5490;} .btn-copy.done{background:#3A6B4C;}
+.txt-panel{margin-top:24px;border:1.5px solid #DDD6CE;border-radius:6px;overflow:hidden;}
+.txt-panel-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#F5F2EE;border-bottom:1px solid #DDD6CE;}
+.txt-panel-label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#6B6157;font-weight:500;}
+.txt-pre{margin:0;padding:20px 22px;font-family:'Courier New',Courier,monospace;font-size:12.5px;line-height:1.75;color:#1C1814;background:#fff;white-space:pre-wrap;word-break:break-word;max-height:480px;overflow-y:auto;}
+.rp-panel{padding:28px 32px;background:#fff;max-height:560px;overflow-y:auto;font-family:'DM Sans',sans-serif;}
+.rp-title{font-family:'Libre Baskerville',serif;font-size:27px;font-weight:700;color:#1C1814;margin-bottom:3px;letter-spacing:-0.01em;}
+.rp-drug{font-size:13.5px;color:#6B6157;margin-bottom:4px;}
+.rp-meta{font-size:12.5px;color:#9C9089;margin-bottom:22px;padding-bottom:16px;border-bottom:2px solid #1C1814;}
+.rp-section{margin-bottom:28px;}
+.rp-h{font-size:15px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;padding:6px 0 8px;border-bottom:2px solid currentColor;margin-bottom:16px;}
+.rp-h.red{color:#C4503A;border-color:#C4503A;}
+.rp-h.green{color:#3A6B4C;border-color:#3A6B4C;}
+.rp-h.blue{color:#2C6EAB;border-color:#2C6EAB;}
+.rp-h.gold{color:#8B6914;border-color:#8B6914;}
+.rp-h.purple{color:#7B3FA0;border-color:#7B3FA0;}
+.rp-phase{border-radius:6px;padding:16px 20px;margin-bottom:16px;}
+.rp-phase-label{font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;margin-bottom:8px;}
+.rp-phase-area{font-size:16px;font-weight:700;color:#1C1814;margin-bottom:4px;}
+.rp-phase-rows{display:grid;grid-template-columns:90px 1fr;gap:6px 16px;margin-top:8px;}
+.rp-phase-row{font-size:12.5px;color:#3A3530;line-height:1.5;}
+.rp-phase-row span{color:#9C9089;font-size:11px;display:block;}
+.rp-phase-note{font-size:11.5px;color:#6B6157;margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,0,0,.08);font-style:italic;}
+.rp-inst-section{margin-bottom:20px;}
+.rp-inst-label{font-size:13px;font-weight:700;color:#1C1814;margin-bottom:9px;}
+.rp-inst-list{list-style:none;padding:0;margin:0;}
+.rp-inst-list li{display:flex;gap:10px;font-size:14px;line-height:1.65;color:#2A2420;margin-bottom:9px;padding-bottom:9px;border-bottom:1px solid #F0EDE8;}
+.rp-inst-list li:last-child{border-bottom:none;margin-bottom:0;}
+.rp-inst-num{font-size:10px;font-weight:700;color:#fff;background:#1C1814;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.rp-warn-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid #F0EDE8;align-items:flex-start;}
+.rp-warn-item:last-child{border-bottom:none;}
+.rp-warn-icon{font-size:16px;flex-shrink:0;width:24px;line-height:1.4;text-align:center;}
+.rp-warn-head{font-size:14px;font-weight:700;color:#1C1814;margin-bottom:2px;}
+.rp-warn-body{font-size:12.5px;color:#6B6157;line-height:1.5;}
+.rp-footer{font-size:12px;color:#9C9089;padding-top:16px;border-top:1px solid #E8E4DF;display:flex;justify-content:space-between;}
+
+/* ── Reset button ── */
+.reset-btn{padding:6px 14px;border-radius:4px;border:1.5px solid #DDD6CE;background:transparent;color:#9C9089;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;margin-left:8px;}
+.reset-btn:hover{border-color:#C4503A;color:#C4503A;}
+
+/* print styles removed — output is RTF download */
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useRef } = React;
+
+// ── Clinical data ──────────────────────────────────────────────────────────
+const DRUGS = {
+  efudix: {
+    name: "Efudix® 5%", generic: "Fluorouracil 5% cream",
+    col: "#C4503A", soft: "#FBF0EE",
+    indications: {
+      "AK – Spot": {
+        label: "AK – Spot Treatment", freq: "Twice daily (AM & PM)", durationWeeks: 4,
+        durationLabel: "Up to 4 weeks — stop at erosive stage", review: "Week 2, Week 4",
+        target: "Dark adherent scabs → stop", gapWeeks: 6,
+        note: "Apply fine smear to spots + 5 mm margin. Reaction begins day 4–5. Healthy skin will not react.",
+        instructions: [
+          ["prep", "There's nothing you need to do to prepare the skin beforehand for spot treatment — just make sure it's clean and dry before each application."],
+          ["apply", "Using a gloved finger, dab a <strong>thin layer</strong> of cream directly onto each spot, covering about 5 mm (roughly a pea-width) of the surrounding skin too. A light, even coat is all you need — you don't need to rub it in."],
+          ["timing", "Apply <strong>twice a day</strong> — once in the morning and once in the evening. Try to do the evening dose <strong>2–3 hours before bed</strong> so it doesn't rub off onto your pillow."],
+          ["hands", "Wash your hands well with soap and water straight after every application. Try not to touch your eyes, nose, or mouth until you've washed."],
+          ["avoid", "Keep the cream away from your eyes, nostrils, and lips. <strong>Don't cover the area with bandages or dressings</strong> — leave it uncovered."],
+          ["reaction", "<strong>What to expect — and why you shouldn't stop too early:</strong> Redness usually starts around day 4–5 — this is normal. It then moves through small bumps, then small blisters, and finally dark, crusty scabs. <strong>Keep going until you reach the dark scab stage</strong> — stopping when it's just red will make the treatment far less effective."],
+          ["endpoint", "Once you see dark scabs, stop the cream and start using <strong>Advantan Fatty Ointment®</strong> twice a day instead — this calms things down and helps the skin heal. Healing usually takes about 2 weeks."],
+          ["sun", "Keep the treated spots out of the sun during treatment, and use SPF50+ sunscreen on the skin around them."],
+          ["pregnancy", "<strong>Don't use this cream if you're pregnant or trying to fall pregnant.</strong>"],
+          ["review", "If any spot is still there 6–8 weeks after you finish, come back and see us — it may need a biopsy."],
+        ],
+      },
+      "AK – Field": {
+        label: "AK – Field Treatment", freq: "Twice daily (AM & PM)", durationWeeks: 4,
+        durationLabel: "2–4 weeks — stop at erosive stage", review: "Week 2, Week 4",
+        target: "Dark adherent scabs across field → stop", gapWeeks: 8,
+        note: "Treat up to 500 cm². Pre-treat with CeraVe SA 2 weeks prior. Preferably cooler months.",
+        instructions: [
+          ["prep", "<strong>Starting 2 weeks before you begin:</strong> apply <strong>CeraVe SA Smoothing Cream</strong> to the whole treatment area twice a day. This softens the rough, sun-damaged skin so the Efudix can work better. Don't start the Efudix until these 2 weeks are done."],
+          ["apply", "Using a gloved finger, spread a <strong>thin, even layer</strong> of Efudix over the whole area you're treating. You don't need to rub it in — just a light coat over the surface."],
+          ["timing", "Apply <strong>twice a day</strong> — morning and evening. Try to do the evening dose <strong>2–3 hours before bed</strong> so it doesn't rub off onto your pillow."],
+          ["hands", "Wash your hands well with soap and water straight after every application. Try not to touch your eyes, nose, or mouth until you've washed."],
+          ["avoid", "Keep the cream away from your eyes, nostrils, and lips. <strong>Don't cover the area with bandages or dressings.</strong> Normal, healthy skin in the treated area won't react much — it's only the sun-damaged spots that flare up."],
+          ["reaction", "<strong>What to expect — and why you shouldn't stop too early:</strong> Redness appears across the area around day 4–5 — this is expected. It then moves through small bumps, then small blisters, and finally dark, crusty scabs across the whole field. <strong>Keep going until you reach that dark scab stage</strong> — stopping when it's just red will make the treatment far less effective. The worse it looks, the harder it's working."],
+          ["endpoint", "Once the whole area has reached the dark scab stage, stop the cream and switch to <strong>Advantan Fatty Ointment®</strong> twice a day until it's healed. This usually takes about 2 weeks. Don't start treating the next area until this one has fully healed, with no active crusting left."],
+          ["sun", "<strong>Keep the treated area completely out of the sun during treatment.</strong> It's best to plan this treatment for the cooler months (April–September), when there's less sun around and the skin copes better."],
+          ["pregnancy", "<strong>Don't use this cream if you're pregnant or trying to fall pregnant.</strong>"],
+          ["review", "If any area is still there 6–8 weeks after you finish, come back and see us — it may need a biopsy."],
+        ],
+      },
+      "SCC in Situ": {
+        label: "SCC in Situ (Bowen's)", freq: "Twice daily (AM & PM)", durationWeeks: 6,
+        durationLabel: "6 weeks — stop at erosive stage", review: "Week 2, Week 4, Week 6",
+        target: "Dark adherent scabs → stop", gapWeeks: 10,
+        note: "Longer duration required. Lesion persisting 6–8 weeks post-treatment → biopsy.",
+        instructions: [
+          ["apply", "Using a gloved finger, apply a <strong>thin layer</strong> of Efudix to the spot and about <strong>5–10 mm of the skin around it</strong>. Covering that extra margin matters here, as this type of lesion can extend a little beyond what you can see."],
+          ["timing", "Apply <strong>twice a day</strong> — morning and evening — for <strong>6 weeks</strong>. Do the evening dose <strong>2–3 hours before bed</strong> so it doesn't rub off onto your pillow. This course is longer than a typical actinic keratosis treatment, so it's important to see it through to the end."],
+          ["hands", "Wash your hands well with soap and water straight after every application."],
+          ["avoid", "Keep the cream away from your eyes, nostrils, and lips. <strong>Don't cover the area with bandages or dressings.</strong>"],
+          ["reaction", "<strong>What to expect:</strong> Redness usually starts around day 4–5, then moves through small bumps, small blisters, and finally dark, crusty scabs. <strong>Only stop once you reach that dark scab stage</strong> — stopping earlier makes the treatment much less effective. With a 6-week course, this reaction can last longer than it would for a simple sun spot."],
+          ["endpoint", "Once you reach the dark scab stage, stop the cream and use <strong>Advantan Fatty Ointment®</strong> twice a day to help it heal — this takes around 2 weeks. Don't start the next phase of treatment until this area is fully healed."],
+          ["sun", "Keep the treated area out of the sun for the whole 6-week course."],
+          ["pregnancy", "<strong>Don't use this cream if you're pregnant or trying to fall pregnant.</strong>"],
+          ["review", "<strong>You must come back for a check 6–8 weeks after finishing.</strong> If anything is still there, it will need a biopsy — please don't assume it's just leftover inflammation."],
+        ],
+      },
+      "Superficial BCC": {
+        label: "Superficial BCC", freq: "Twice daily (AM & PM)", durationWeeks: 6,
+        durationLabel: "6 weeks", review: "Week 3, Week 6",
+        target: "Erosive reaction at BCC site", gapWeeks: 10,
+        note: "Use only where surgery impractical. Confirm histological diagnosis.",
+        instructions: [
+          ["apply", "Using a gloved finger, apply a <strong>thin layer</strong> of Efudix to the skin cancer and about <strong>5–10 mm of the skin around it</strong>, covering the whole lesion and its edges."],
+          ["timing", "Apply <strong>twice a day</strong> — morning and evening — for the full <strong>6 weeks</strong>. Do the evening dose <strong>2–3 hours before bed</strong>. It's important to complete the whole 6 weeks — don't stop just because the reaction has started."],
+          ["hands", "Wash your hands well with soap and water straight after every application."],
+          ["avoid", "Keep the cream away from your eyes, nostrils, and lips. <strong>Don't cover the area with bandages or dressings.</strong>"],
+          ["reaction", "<strong>What to expect:</strong> Redness usually starts around day 4–5, then moves through small bumps, small blisters, and finally a raw, crusted reaction right at the cancer site. This spot may react more strongly than the skin around it — that's expected. <strong>Keep treating until that area is fully crusted and raw</strong>, or until the 6 weeks are up, whichever comes first."],
+          ["endpoint", "At the end of the course, stop the cream and use <strong>Advantan Fatty Ointment®</strong> twice a day to help healing — this takes about 2 weeks."],
+          ["sun", "Keep the treated area out of the sun for the whole 6-week course."],
+          ["pregnancy", "<strong>Don't use this cream if you're pregnant or trying to fall pregnant.</strong>"],
+          ["review", "<strong>You'll need a check-up 6–8 weeks after finishing, and anything left over will need a biopsy.</strong> We use this cream when surgery isn't the right option, so it's important to confirm the cancer has fully cleared. We'll also want to check your skin every 6 months going forward."],
+        ],
+      },
+    },
+  },
+  aldara: {
+    name: "Aldara® 5%", generic: "Imiquimod 5% cream",
+    col: "#3A6B4C", soft: "#EBF3EE",
+    indications: {
+      "AK": {
+        label: "Actinic Keratoses", freq: "Once daily — 3 days/week (Mon/Wed/Fri)", durationWeeks: 4,
+        durationLabel: "4 weeks (up to 2 courses, 4 weeks apart)", review: "Week 4, then Week 8 if second course",
+        target: "Crusting reaction = treatment working", gapWeeks: 6,
+        note: "Field limited to 25 cm². Requires intact immune system. TGA-approved for face and scalp.",
+        instructions: [
+          ["schedule", "Only apply Aldara on <strong>Monday, Wednesday, and Friday</strong>. The other days are rest days on purpose — they let your immune system do its job, so please don't apply on those days."],
+          ["apply", "On treatment days, apply once, using a gloved finger to spread a <strong>thin layer</strong> over the area (no bigger than <strong>25 cm²</strong> — about the size of your palm). Don't go over this size, as treating a larger area can make you feel unwell."],
+          ["timing", "Apply in the <strong>evening, before bed</strong>. Leave it on overnight and wash it off in the <strong>morning, after about 8 hours</strong>. Try not to wash it off or go to bed earlier than that."],
+          ["hands", "Wash your hands straight after applying. Try not to touch your eyes, nose, or mouth until you've washed."],
+          ["avoid", "Keep the cream away from your eyes, nostrils, and lips."],
+          ["reaction", "<strong>Some crusting and redness is expected — it actually shows the treatment is working.</strong> It can look worse than you might expect, and that's not a reason to stop. Aldara works by switching on your own immune system rather than directly killing cells, so the reaction can be a bit more unpredictable and sometimes stronger than with Efudix."],
+          ["systemic", "If you start to feel flu-like — tired, achy, feverish — during treatment, give us a call. It can be a sign the area being treated is a bit too large."],
+          ["course", "After 4 weeks, <strong>take a 4-week break</strong> and come back to see us. We may prescribe a second 4-week course at that visit if it's needed. Please don't restart on your own without a review."],
+          ["sun", "Keep the treated area out of the sun on the days you apply the cream, and use SPF50+ sunscreen daily."],
+          ["pregnancy", "<strong>Don't use this cream if you're pregnant or trying to fall pregnant.</strong>"],
+          ["review", "We'll check things at 4 weeks (end of the first course), and again at 8 weeks if you need a second course. If it hasn't cleared after two courses, we'll need to take another look and possibly do a biopsy."],
+        ],
+      },
+      "Superficial BCC": {
+        label: "Superficial BCC", freq: "Once daily — 5 days/week (Mon–Fri)",
+        durationWeeks: 6, durationLabel: "6 weeks", review: "Week 3, Week 6, then 12 weeks post",
+        target: "Crusting and clearance at BCC site", gapWeeks: 10,
+        note: "TGA-approved. Confirm histological diagnosis. Field ≤25 cm².",
+        instructions: [
+          ["schedule", "Apply Aldara <strong>Monday to Friday</strong> each week. Weekends are rest days on purpose — please don't apply on Saturday or Sunday."],
+          ["apply", "On treatment days, apply once, using a gloved finger to spread a <strong>thin layer</strong> over the skin cancer and about <strong>1 cm of the skin around it</strong> — that margin is important, so don't skip it. Keep the total area to no more than <strong>25 cm²</strong>."],
+          ["timing", "Apply in the <strong>evening, before bed</strong>. Leave it on overnight and wash it off in the <strong>morning, after about 8 hours</strong>. Try not to wash it off or go to bed earlier than that."],
+          ["hands", "Wash your hands straight after applying. Try not to touch your eyes, nose, or mouth until you've washed."],
+          ["avoid", "Keep the cream away from your eyes, nostrils, and lips. Also avoid applying within 1 cm of your hairline, eyes, nose, mouth, or ears — the cream hasn't been well tested that close to these areas."],
+          ["reaction", "<strong>Redness and crusting right at the cancer site is expected — it shows your immune system is responding.</strong> The reaction there may be stronger than on the surrounding skin — keep going through this unless it becomes severe."],
+          ["pause", "If the reaction gets severe — a lot of pain, widespread rawness, or it's hard to cope with — <strong>pause the cream</strong> and call us. Once things settle down, start again and complete the full 6 weeks. Pausing doesn't reduce how well it works — what matters is getting to 6 weeks of treatment in total."],
+          ["systemic", "If you get flu-like symptoms — tiredness, aches, fever — during treatment, please call us."],
+          ["sun", "Keep the treated area out of the sun for the whole 6-week course."],
+          ["pregnancy", "<strong>Don't use this cream if you're pregnant or trying to fall pregnant.</strong>"],
+          ["review", "<strong>We'll check things at 3 weeks, 6 weeks, and again at 12 weeks after you finish.</strong> That 12-week check is important, as it confirms the cancer has cleared. Anything left over at that point will need a biopsy. We'll also want to check your skin every 6 months after this."],
+        ],
+      },
+    },
+  },
+  klisyri: {
+    name: "Klisyri® 1%", generic: "Tirbanibulin 1% ointment",
+    col: "#2C6EAB", soft: "#E8F0F8",
+    allowedZones: ["scalp","l_face","r_face","nose","neck_l","neck_r","neck_post","l_trap","r_trap","hn_scalp","hn_forehead","hn_r_cheek","hn_l_cheek","hn_nose","hn_r_ear","hn_l_ear","hn_r_neck","hn_l_neck"],
+    indications: {
+      "AK – Field": {
+        label: "AK – Field Treatment (Face/Scalp)", freq: "Once daily for 5 consecutive days",
+        durationWeeks: 1, durationLabel: "5 days (1 week)", review: "Week 8",
+        target: "Clinical clearance at 8-week review", gapWeeks: 8,
+        note: "TGA-approved for face and scalp only. Do not apply to trunk or limbs. Repeat course permitted if incomplete clearance at 8 weeks.",
+        instructions: [
+          ["scope", "<strong>Klisyri® is only approved for the face and scalp.</strong> Please don't use it on your neck, body, or limbs."],
+          ["apply", "Apply once a day for <strong>5 days in a row</strong>, then stop. Use your fingertip to spread a <strong>thin layer</strong> over the whole area on your face or scalp. Wash your hands straight after."],
+          ["timing", "Try to apply at around the same time each day. There's no need to leave it on overnight — just try not to wash the area for a few hours afterwards so it can absorb properly."],
+          ["avoid", "Keep it away from your eyes, nostrils, and lips. If it accidentally gets into your eyes, rinse well with water."],
+          ["reaction", "<strong>The reaction shows up after you finish treatment, not during it.</strong> Expect redness, flaking, and some crusting to peak around <strong>day 8</strong> — that's 3 days after your last dose. This is normal and means it's working. The reaction is usually milder than with Efudix."],
+          ["timeline", "<strong>What to expect, day by day:</strong> Days 1–5 you're applying the cream → Day 8 the reaction peaks (redness, flaking, scaling) → by day 15 it's usually settling down → by day 29 it's usually all healed → at 8 weeks we'll check how it's cleared."],
+          ["sun", "Keep the treated area out of the sun during and after treatment, and use SPF50+ sunscreen daily — the skin will be more sensitive after treatment."],
+          ["pregnancy", "<strong>Don't use this if you're pregnant or trying to fall pregnant.</strong>"],
+          ["review", "<strong>Come back at 8 weeks</strong> so we can check how well it's cleared. If it's not fully gone, we may prescribe a second 5-day course. If it still hasn't cleared after two courses, we'll need to take a biopsy."],
+        ],
+      },
+    },
+  },
+  compound: {
+    name: "5-FU + Calcipotriol", generic: "Fluorouracil 5% + Calcipotriol 0.005% cream (compounded)",
+    col: "#7B4FA0", soft: "#F3EEF9",
+    indications: {
+      "AK – Field": {
+        label: "AK – Field Treatment (Compounded)", freq: "Twice daily (AM & PM)",
+        durationWeeks: 1, durationLabel: "4–6 days (aim for 6 days if tolerated)",
+        review: "Week 8–10", target: "Erythema and early erosive reaction — stop at 6 days maximum",
+        gapWeeks: 8,
+        note: "Off-label compounded combination. Qty: 15g per course (covers face). Repeat script required for arms, chest, or larger fields. Informed consent required — document in notes.",
+        instructions: [
+          ["consent", "<strong>This cream is made up specially for you by a compounding pharmacy</strong> — it's not something you can buy off the shelf. Your doctor has already talked you through why this combination is being used."],
+          ["script", "Your prescription is for <strong>Fluorouracil 5% + Calcipotriol 0.005% cream, 15g</strong>. One 15g tube is enough to cover the face. If you're treating your arms, chest, or a larger area, you'll need <strong>extra tubes</strong> — check with your doctor before you start."],
+          ["prep", "Just make sure the skin is clean and dry before each application — there's no need for any pre-treatment cream."],
+          ["apply", "Using a gloved finger, spread a <strong>thin, even layer</strong> over the whole area, including a small margin around it. You don't need to rub it in."],
+          ["timing", "Apply <strong>twice a day</strong> — morning and evening — for <strong>4 to 6 days</strong>. Most people manage the full 6 days. If it gets too uncomfortable before then, you can stop at day 4 — but try to reach day 6 if you can. Do the evening dose <strong>2–3 hours before bed</strong> so it doesn't rub off onto your pillow."],
+          ["hands", "Wash your hands well with soap and water straight after every application. <strong>Try not to touch your eyes, nose, mouth, or any other sensitive areas before washing.</strong>"],
+          ["avoid", "Keep the cream away from your eyes, nostrils, and lips. Don't cover the area with bandages or dressings."],
+          ["reaction", "<strong>A reaction is expected — it means the cream is doing its job.</strong> Redness often starts within the first 1–2 days — quicker than with Efudix alone, because the calcipotriol helps it absorb faster. It moves through redness, small bumps, and then early raw patches. <strong>Stop at day 6 no matter what stage the reaction has reached</strong> — don't go beyond 6 days."],
+          ["endpoint", "Once you stop (day 4–6), switch to <strong>Advantan Fatty Ointment®</strong> twice a day to ease discomfort and help healing. This usually takes 1–2 weeks. Don't start treating another area until this one is fully healed."],
+          ["sun", "<strong>Keep the treated area completely out of the sun during treatment.</strong> Sun on an active reaction can cause a nasty burn. Use SPF50+ on the surrounding skin."],
+          ["pregnancy", "<strong>Don't use this cream if you're pregnant or trying to fall pregnant</strong> — both ingredients carry risks in pregnancy."],
+          ["review", "Come back for a check at <strong>8–10 weeks</strong> after finishing. Anything still there at that point will need a biopsy. Even though this treatment is short, follow-up is still important."],
+        ],
+      },
+    },
+  },
+};
+
+const ZONES = [
+  // ── FRONT figure (centred x≈110) ─────────────────────────
+  { id: "scalp",        label: "Scalp",               cx: 110, cy: 20,  rx: 19, ry: 13, diag:"body" },
+  { id: "l_face",       label: "L Face",               cx: 124, cy: 40,  rx: 10, ry: 13, diag:"body" },
+  { id: "r_face",       label: "R Face",               cx: 96,  cy: 40,  rx: 10, ry: 13, diag:"body" },
+  { id: "nose",         label: "Nose",                 cx: 110, cy: 38,  rx: 5,  ry: 6,  diag:"body" },
+  { id: "neck_l",       label: "L Ant. Neck",          cx: 121, cy: 66,  rx: 8,  ry: 5,  diag:"body" },
+  { id: "neck_r",       label: "R Ant. Neck",          cx: 99,  cy: 66,  rx: 8,  ry: 5,  diag:"body" },
+  { id: "l_trap",       label: "L Upper Trap.",        cx: 152, cy: 88,  rx: 12, ry: 8,  diag:"body" },
+  { id: "r_trap",       label: "R Upper Trap.",        cx: 68,  cy: 88,  rx: 12, ry: 8,  diag:"body" },
+  { id: "decolletage",  label: "Décolletage",          cx: 110, cy: 110, rx: 24, ry: 12, diag:"body" },
+  { id: "l_arm_front",  label: "L Arm — Front",        cx: 172, cy: 132, rx: 7,  ry: 19, diag:"body" },
+  { id: "r_arm_front",  label: "R Arm — Front",        cx: 48,  cy: 132, rx: 7,  ry: 19, diag:"body" },
+  { id: "l_fa_front",   label: "L Forearm — Front",    cx: 176, cy: 192, rx: 7,  ry: 17, diag:"body" },
+  { id: "r_fa_front",   label: "R Forearm — Front",    cx: 44,  cy: 192, rx: 7,  ry: 17, diag:"body" },
+  { id: "l_hand",       label: "L Hand Dorsum",        cx: 175, cy: 234, rx: 9,  ry: 9,  diag:"body" },
+  { id: "r_hand",       label: "R Hand Dorsum",        cx: 45,  cy: 234, rx: 9,  ry: 9,  diag:"body" },
+  { id: "l_thigh_f",    label: "L Thigh — Front",      cx: 141, cy: 262, rx: 12, ry: 22, diag:"body" },
+  { id: "r_thigh_f",    label: "R Thigh — Front",      cx: 79,  cy: 262, rx: 12, ry: 22, diag:"body" },
+  { id: "l_leg_f",      label: "L Lower Leg — Front",  cx: 141, cy: 348, rx: 11, ry: 24, diag:"body" },
+  { id: "r_leg_f",      label: "R Lower Leg — Front",  cx: 79,  cy: 348, rx: 11, ry: 24, diag:"body" },
+  // ── BACK figure (centred x≈330) ──────────────────────────
+  { id: "neck_post",    label: "Post. Neck",           cx: 330, cy: 66,  rx: 11, ry: 5,  diag:"body" },
+  { id: "l_arm_back",   label: "L Arm — Back",         cx: 394, cy: 136, rx: 7,  ry: 19, diag:"body" },
+  { id: "r_arm_back",   label: "R Arm — Back",         cx: 266, cy: 136, rx: 7,  ry: 19, diag:"body" },
+  { id: "l_fa_back",    label: "L Forearm — Back",     cx: 398, cy: 196, rx: 7,  ry: 17, diag:"body" },
+  { id: "r_fa_back",    label: "R Forearm — Back",     cx: 262, cy: 196, rx: 7,  ry: 17, diag:"body" },
+  { id: "l_thigh_b",    label: "L Thigh — Back",       cx: 364, cy: 268, rx: 12, ry: 22, diag:"body" },
+  { id: "r_thigh_b",    label: "R Thigh — Back",       cx: 296, cy: 268, rx: 12, ry: 22, diag:"body" },
+  { id: "l_leg_b",      label: "L Lower Leg — Back",   cx: 364, cy: 352, rx: 11, ry: 24, diag:"body" },
+  { id: "r_leg_b",      label: "R Lower Leg — Back",   cx: 296, cy: 352, rx: 11, ry: 24, diag:"body" },
+
+  // ── HEAD & NECK — front-facing, trigeminal distribution ──────────────────
+  // viewBox 260×310, face centred x=130
+  { id: "hn_scalp",     label: "Scalp",         cx: 130, cy: 38,  rx: 72, ry: 30, diag:"head" },
+  { id: "hn_forehead",  label: "Forehead (V1)", cx: 130, cy: 80,  rx: 62, ry: 22, diag:"head" },
+  { id: "hn_r_cheek",   label: "R Cheek (V2)",  cx: 62,  cy: 152, rx: 42, ry: 32, diag:"head" },
+  { id: "hn_l_cheek",   label: "L Cheek (V2)",  cx: 198, cy: 152, rx: 42, ry: 32, diag:"head" },
+  { id: "hn_r_jaw",     label: "R Jaw (V3)",    cx: 54,  cy: 218, rx: 36, ry: 22, diag:"head" },
+  { id: "hn_l_jaw",     label: "L Jaw (V3)",    cx: 206, cy: 218, rx: 36, ry: 22, diag:"head" },
+  { id: "hn_nose",      label: "Nose",          cx: 130, cy: 160, rx: 20, ry: 24, diag:"head" },
+  { id: "hn_r_ear",     label: "R Ear",         cx: 22,  cy: 158, rx: 14, ry: 22, diag:"head" },
+  { id: "hn_l_ear",     label: "L Ear",         cx: 238, cy: 158, rx: 14, ry: 22, diag:"head" },
+  { id: "hn_r_neck",    label: "R Neck",        cx: 90,  cy: 272, rx: 34, ry: 20, diag:"head" },
+  { id: "hn_l_neck",    label: "L Neck",        cx: 170, cy: 272, rx: 34, ry: 20, diag:"head" },
+];
+
+const PHASE_COLS = ["#2C6EAB","#C4503A","#3A6B4C","#8B6914","#7B3FA0","#B05A2A"];
+const PHASE_SOFT = ["#E8F0F8","#FBF0EE","#EBF3EE","#F5EDD8","#F3EDF8","#F5EDE8"];
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+function addWeeks(dateStr, weeks) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  d.setDate(d.getDate() + weeks * 7);
+  return d.toISOString().split("T")[0];
+}
+
+function fmtDate(dateStr) {
+  if (!dateStr) return "—";
+  return new Date(dateStr + "T00:00:00").toLocaleDateString("en-AU", { day: "2-digit", month: "short", year: "numeric" });
+}
+
+function fmtDateLong(dateStr) {
+  if (!dateStr) return "—";
+  return new Date(dateStr + "T00:00:00").toLocaleDateString("en-AU", { day: "2-digit", month: "long", year: "numeric" });
+}
+
+function computePhases(zones, startDate, drugKey) {
+  const d = DRUGS[drugKey];
+  const byPhase = {};
+  zones.forEach(z => {
+    if (!byPhase[z.phase]) byPhase[z.phase] = [];
+    byPhase[z.phase].push(z);
+  });
+  const phases = Object.keys(byPhase).map(Number).sort((a, b) => a - b);
+  const result = {};
+  let cursor = startDate;
+  phases.forEach(ph => {
+    const zonesInPhase = byPhase[ph];
+    const maxDuration = Math.max(...zonesInPhase.map(z => (d.indications[z.indication]?.durationWeeks || 4)));
+    const maxGap = Math.max(...zonesInPhase.map(z => (d.indications[z.indication]?.gapWeeks || 6)));
+    const phStart = cursor;
+    const phEnd = addWeeks(cursor, maxDuration);
+    result[ph] = { start: phStart, end: phEnd, nextStart: addWeeks(cursor, maxGap), zones: zonesInPhase, durationWeeks: maxDuration };
+    cursor = result[ph].nextStart;
+  });
+  return result;
+}
+
+function shortLabel(label) {
+  return label
+    .replace("Anterior ", "Ant. ")
+    .replace("Posterior ", "Post. ")
+    .replace("Trapezius", "Trap.")
+    .replace("Forearm", "FA")
+    .replace("Dorsum", "Dors.")
+    .replace("Décolletage", "Décoll.");
+}
+
+function maxPhase(zones) {
+  return zones.length === 0 ? 1 : Math.max(...zones.map(z => z.phase));
+}
+
+// ── TXT Generation ────────────────────────────────────────────────────────
+const DOCTOR = "Dr H. Balachandran  MBBS · FRACGP";
+const LINE   = "─".repeat(60);
+const DLINE  = "═".repeat(60);
+const PAGE   = "\f";
+
+function stripHtml(html) {
+  return html
+    .replace(/<strong>/gi,"").replace(/<\/strong>/gi,"")
+    .replace(/<em>/gi,"").replace(/<\/em>/gi,"")
+    .replace(/&amp;/g,"&").replace(/&nbsp;/g," ")
+    .replace(/<br\s*\/?>/gi,"\n")
+    .replace(/<[^>]+>/g,"");
+}
+
+function centre(str, width) {
+  width = width || 60;
+  const pad = Math.max(0, Math.floor((width - str.length) / 2));
+  return " ".repeat(pad) + str;
+}
+
+function wrap(text, width, indent) {
+  width = width || 58; indent = indent || "  ";
+  const words = text.split(" ");
+  const lines = [];
+  let cur = indent;
+  for (const w of words) {
+    if ((cur + w).length > width && cur.trim()) { lines.push(cur.trimEnd()); cur = indent + w + " "; }
+    else cur += w + " ";
+  }
+  if (cur.trim()) lines.push(cur.trimEnd());
+  return lines.join("\n");
+}
+
+function downloadTXT(patientName, patientDOB, d, zones, phaseData, phaseNums, startDate, todayISO, drug) {
+  const sections = [];
+
+  // PAGE 1: Cover
+  let cover = "\n\n";
+  cover += DLINE + "\n";
+  cover += centre(d.name.toUpperCase() + " TREATMENT PLAN") + "\n";
+  cover += DLINE + "\n\n";
+  cover += centre(DOCTOR) + "\n";
+  cover += centre(fmtDateLong(todayISO)) + "\n\n";
+  cover += LINE + "\n\n";
+  cover += "PATIENT        " + patientName + "\n";
+  if (patientDOB) cover += "DATE OF BIRTH  " + patientDOB + "\n";
+  cover += "START DATE     " + fmtDateLong(startDate) + "\n";
+  cover += "TOTAL PHASES   " + phaseNums.length + "\n\n";
+  cover += LINE + "\n\n";
+  cover += "PHASE OVERVIEW\n\n";
+  phaseNums.forEach(function(ph) {
+    const pd = phaseData[ph];
+    if (!pd) return;
+    const zstr = pd.zones.map(function(z){ return z.label; }).join(" + ");
+    cover += "  Phase " + ph + "   " + fmtDate(pd.start) + "  \u2192  " + fmtDate(pd.end) + "  (" + pd.durationWeeks + " week" + (pd.durationWeeks !== 1 ? "s" : "") + ")\n";
+    cover += "           " + zstr + "\n\n";
+  });
+  const lastPD = phaseData[phaseNums[phaseNums.length - 1]];
+  if (lastPD) {
+    cover += LINE + "\n\n";
+    cover += "ESTIMATED COMPLETION   " + fmtDateLong(lastPD.end) + "\n";
+    cover += "FINAL REVIEW DUE       " + fmtDateLong(addWeeks(lastPD.end, 8)) + "\n";
+  }
+  sections.push(cover);
+
+  // PAGE 2: Treatment Areas
+  let areas = DLINE + "\n";
+  areas += "TREATMENT AREAS BY PHASE\n";
+  areas += DLINE + "\n\n";
+  phaseNums.forEach(function(ph) {
+    const pd = phaseData[ph];
+    if (!pd) return;
+    areas += "PHASE " + ph + "  \u00B7  " + fmtDate(pd.start) + " \u2014 " + fmtDate(pd.end) + "\n";
+    areas += LINE + "\n\n";
+    pd.zones.forEach(function(z) {
+      const ind = d.indications[z.indication];
+      if (!ind) return;
+      areas += "  AREA        " + z.label + "\n";
+      areas += "  Indication  " + ind.label + "\n";
+      areas += "  Frequency   " + ind.freq + "\n";
+      areas += "  Duration    " + ind.durationLabel + "\n";
+      areas += "  Target      " + ind.target + "\n";
+      areas += "  Reviews     " + ind.review + "\n";
+      if (z.notes && z.notes.trim()) areas += "  Notes       " + z.notes + "\n";
+      areas += "\n";
+    });
+  });
+  areas += LINE + "\n\n";
+  if (drug === "compound") {
+    areas += "SCRIPT TYPE    Compounded preparation \u2014 to compounding chemist\n";
+    areas += "               15g per course (face). Repeats required for larger fields.\n";
+    areas += "PBS STATUS     Private \u2014 not PBS listed\n";
+    areas += "CONSENT        Off-label combination \u2014 informed consent documented\n";
+  } else if (drug === "aldara") {
+    areas += "PBS STATUS     Restricted benefit (AKs) \u00B7 Private for sBCC\n";
+  } else {
+    areas += "PBS STATUS     Private \u2014 not PBS listed\n";
+  }
+  sections.push(areas);
+
+  // PAGE(S): Instructions per indication
+  const indGroups = {};
+  zones.forEach(function(z) {
+    if (!indGroups[z.indication]) indGroups[z.indication] = [];
+    indGroups[z.indication].push(z.label);
+  });
+  const uniqueIndications = Object.keys(indGroups);
+  uniqueIndications.forEach(function(indKey) {
+    const ind = d.indications[indKey];
+    if (!ind || !ind.instructions) return;
+    const multiInd = uniqueIndications.length > 1;
+    let inst = DLINE + "\n";
+    inst += (multiInd ? "INSTRUCTIONS \u2014 " + ind.label.toUpperCase() : "INSTRUCTIONS") + "\n";
+    if (multiInd) inst += "Applies to: " + indGroups[indKey].join(", ") + "\n";
+    inst += DLINE + "\n\n";
+    ind.instructions.forEach(function(item, i) {
+      const clean = stripHtml(item[1]);
+      const num = String(i + 1).padStart(2, " ");
+      inst += num + ".  " + wrap(clean, 56, "    ").replace(/^    /, "") + "\n\n";
+    });
+    sections.push(inst);
+  });
+
+  // PAGE: When to seek early review
+  let warn = DLINE + "\n";
+  warn += "WHEN TO SEEK EARLIER REVIEW\n";
+  warn += DLINE + "\n\n";
+  warn += wrap("The following are not normal parts of treatment. If any occur, stop the cream and contact the practice or present to your nearest Emergency Department after hours.", 58, "  ") + "\n\n";
+  warn += LINE + "\n\n";
+  const warnings = [
+    ["\u{1F534}  URGENT", "Signs of infection",      "Increasing warmth, swelling, pus, or weeping not settling"],
+    ["\u{1F534}  URGENT", "Spreading redness",        "Redness or crusting spreading well beyond the treatment area"],
+    ["\u{1F534}  URGENT", "Severe pain",              "Pain not controlled with paracetamol"],
+    ["\u{1F534}  URGENT", drug === "klisyri" ? "Severe eye irritation"    : "Fever or flu-like symptoms",
+                         drug === "klisyri" ? "Rinse immediately if ointment contacts eyes" : "Feeling unwell, shivering, or feverish during treatment"],
+    ["\u{1F7E1}  REVIEW", drug === "klisyri" ? "No reaction after course" : "No reaction by day 10",
+                         drug === "klisyri" ? "If no redness or scaling occurred at all after finishing" : "The cream may not be absorbing correctly \u2014 contact us"],
+    ["\u{1F7E1}  REVIEW", "Reaction near eyes or lips",   "Significant irritation or swelling from accidental contact"],
+    ["\u{1F7E1}  REVIEW", "Possible allergic reaction",   "Widespread rash, hives, or unusual swelling \u2014 stop immediately"],
+    ["\u{1F7E1}  REVIEW", "Concerned about a lesion",     "A spot that looks different, is growing, or bleeding unexpectedly"],
+  ];
+  warnings.forEach(function(w) {
+    warn += w[0] + "\n";
+    warn += "  " + w[1] + "\n";
+    warn += wrap(w[2], 56, "  ") + "\n\n";
+  });
+  warn += LINE + "\n\n";
+  warn += wrap("For non-urgent questions, send a photo for review. For urgent concerns, call during business hours or present to your nearest Emergency Department after hours.", 58, "  ") + "\n\n";
+  warn += LINE + "\n\n";
+  warn += "Prescribed by:  " + DOCTOR + "\n";
+  warn += "Date:           " + fmtDateLong(todayISO) + "\n\n";
+  warn += "Ongoing skin surveillance recommended every 6\u201312 months.\n";
+  sections.push(warn);
+
+  const fullText = sections.join(PAGE + "\n");
+  const blob = new Blob([fullText], { type: "text/plain;charset=utf-8" });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement("a");
+  const safe = patientName.trim().replace(/[^a-zA-Z0-9]/g, "_") || "patient";
+  a.href     = url;
+  a.download = "TreatmentPlan_" + safe + "_" + todayISO + ".txt";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function buildTXT(patientName, patientDOB, d, zones, phaseData, phaseNums, startDate, todayISO, drug) {
+  // Same as downloadTXT but returns the string instead of triggering download
+  const sections = [];
+  let cover = "\n\n";
+  cover += DLINE + "\n";
+  cover += centre(d.name.toUpperCase() + " TREATMENT PLAN") + "\n";
+  cover += DLINE + "\n\n";
+  cover += centre(DOCTOR) + "\n";
+  cover += centre(fmtDateLong(todayISO)) + "\n\n";
+  cover += LINE + "\n\n";
+  cover += "PATIENT        " + patientName + "\n";
+  if (patientDOB) cover += "DATE OF BIRTH  " + patientDOB + "\n";
+  cover += "START DATE     " + fmtDateLong(startDate) + "\n";
+  cover += "TOTAL PHASES   " + phaseNums.length + "\n\n";
+  cover += LINE + "\n\n";
+  cover += "PHASE OVERVIEW\n\n";
+  phaseNums.forEach(function(ph) {
+    const pd = phaseData[ph];
+    if (!pd) return;
+    const zstr = pd.zones.map(function(z){ return z.label; }).join(" + ");
+    cover += "  Phase " + ph + "   " + fmtDate(pd.start) + "  \u2192  " + fmtDate(pd.end) + "  (" + pd.durationWeeks + " week" + (pd.durationWeeks !== 1 ? "s" : "") + ")\n";
+    cover += "           " + zstr + "\n\n";
+  });
+  const lastPD = phaseData[phaseNums[phaseNums.length - 1]];
+  if (lastPD) {
+    cover += LINE + "\n\n";
+    cover += "ESTIMATED COMPLETION   " + fmtDateLong(lastPD.end) + "\n";
+    cover += "FINAL REVIEW DUE       " + fmtDateLong(addWeeks(lastPD.end, 8)) + "\n";
+  }
+  sections.push(cover);
+
+  let areas = DLINE + "\n";
+  areas += "TREATMENT AREAS BY PHASE\n";
+  areas += DLINE + "\n\n";
+  phaseNums.forEach(function(ph) {
+    const pd = phaseData[ph];
+    if (!pd) return;
+    areas += "PHASE " + ph + "  \u00B7  " + fmtDate(pd.start) + " \u2014 " + fmtDate(pd.end) + "\n";
+    areas += LINE + "\n\n";
+    pd.zones.forEach(function(z) {
+      const ind = d.indications[z.indication];
+      if (!ind) return;
+      areas += "  AREA        " + z.label + "\n";
+      areas += "  Indication  " + ind.label + "\n";
+      areas += "  Frequency   " + ind.freq + "\n";
+      areas += "  Duration    " + ind.durationLabel + "\n";
+      areas += "  Target      " + ind.target + "\n";
+      areas += "  Reviews     " + ind.review + "\n";
+      if (z.notes && z.notes.trim()) areas += "  Notes       " + z.notes + "\n";
+      areas += "\n";
+    });
+  });
+  areas += LINE + "\n\n";
+  if (drug === "compound") {
+    areas += "SCRIPT TYPE    Compounded preparation \u2014 to compounding chemist\n";
+    areas += "               15g per course (face). Repeats required for larger fields.\n";
+    areas += "PBS STATUS     Private \u2014 not PBS listed\n";
+    areas += "CONSENT        Off-label combination \u2014 informed consent documented\n";
+  } else if (drug === "aldara") {
+    areas += "PBS STATUS     Restricted benefit (AKs) \u00B7 Private for sBCC\n";
+  } else {
+    areas += "PBS STATUS     Private \u2014 not PBS listed\n";
+  }
+  sections.push(areas);
+
+  const indGroups = {};
+  zones.forEach(function(z) {
+    if (!indGroups[z.indication]) indGroups[z.indication] = [];
+    indGroups[z.indication].push(z.label);
+  });
+  const uniqueIndications = Object.keys(indGroups);
+  uniqueIndications.forEach(function(indKey) {
+    const ind = d.indications[indKey];
+    if (!ind || !ind.instructions) return;
+    const multiInd = uniqueIndications.length > 1;
+    let inst = DLINE + "\n";
+    inst += (multiInd ? "INSTRUCTIONS \u2014 " + ind.label.toUpperCase() : "INSTRUCTIONS") + "\n";
+    if (multiInd) inst += "Applies to: " + indGroups[indKey].join(", ") + "\n";
+    inst += DLINE + "\n\n";
+    ind.instructions.forEach(function(item, i) {
+      const clean = stripHtml(item[1]);
+      const num = String(i + 1).padStart(2, " ");
+      inst += num + ".  " + wrap(clean, 56, "    ").replace(/^    /, "") + "\n\n";
+    });
+    sections.push(inst);
+  });
+
+  let warn = DLINE + "\n";
+  warn += "WHEN TO SEEK EARLIER REVIEW\n";
+  warn += DLINE + "\n\n";
+  warn += wrap("The following are not normal parts of treatment. If any occur, stop the cream and contact the practice or present to your nearest Emergency Department after hours.", 58, "  ") + "\n\n";
+  warn += LINE + "\n\n";
+  const warnings = [
+    ["\u{1F534}  URGENT", "Signs of infection",      "Increasing warmth, swelling, pus, or weeping not settling"],
+    ["\u{1F534}  URGENT", "Spreading redness",        "Redness or crusting spreading well beyond the treatment area"],
+    ["\u{1F534}  URGENT", "Severe pain",              "Pain not controlled with paracetamol"],
+    ["\u{1F534}  URGENT", drug === "klisyri" ? "Severe eye irritation" : "Fever or flu-like symptoms",
+                         drug === "klisyri" ? "Rinse immediately if ointment contacts eyes" : "Feeling unwell, shivering, or feverish during treatment"],
+    ["\u{1F7E1}  REVIEW", drug === "klisyri" ? "No reaction after course" : "No reaction by day 10",
+                         drug === "klisyri" ? "If no redness or scaling occurred at all after finishing" : "The cream may not be absorbing correctly \u2014 contact us"],
+    ["\u{1F7E1}  REVIEW", "Reaction near eyes or lips",   "Significant irritation or swelling from accidental contact"],
+    ["\u{1F7E1}  REVIEW", "Possible allergic reaction",   "Widespread rash, hives, or unusual swelling \u2014 stop immediately"],
+    ["\u{1F7E1}  REVIEW", "Concerned about a lesion",     "A spot that looks different, is growing, or bleeding unexpectedly"],
+  ];
+  warnings.forEach(function(w) {
+    warn += w[0] + "\n";
+    warn += "  " + w[1] + "\n";
+    warn += wrap(w[2], 56, "  ") + "\n\n";
+  });
+  warn += LINE + "\n\n";
+  warn += wrap("For non-urgent questions, send a photo for review. For urgent concerns, call during business hours or present to your nearest Emergency Department after hours.", 58, "  ") + "\n\n";
+  warn += LINE + "\n\n";
+  warn += "Prescribed by:  " + DOCTOR + "\n";
+  warn += "Date:           " + fmtDateLong(todayISO) + "\n\n";
+  warn += "Ongoing skin surveillance recommended every 6\u201312 months.\n";
+  sections.push(warn);
+
+  return sections.join("\n\n" + LINE + "\n\n");
+}
+
+// ── Build HTML for clipboard (BP RTF editor accepts text/html) ─────────────
+function buildClipboardHTML(patientName, patientDOB, d, zones, phaseData, phaseNums, startDate, todayISO, drug) {
+  const PHASE_COLS_HEX = ["#2C6EAB","#C4503A","#3A6B4C","#8B6914","#7B3FA0","#B05A2A"];
+  const PHASE_BG_HEX   = ["#E8F0F8","#FBF0EE","#EBF3EE","#F5EDD8","#F3EDF8","#F5EDE8"];
+
+  const indGroups = {};
+  zones.forEach(z => {
+    if (!indGroups[z.indication]) indGroups[z.indication] = [];
+    indGroups[z.indication].push(z.label);
+  });
+  const uniqueInds = Object.keys(indGroups);
+
+  let html = `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;font-size:14px;color:#1C1814;max-width:700px;margin:0;padding:16px;line-height:1.6;">`;
+
+  // Title — largest heading in the document: drug name + "Treatment Plan"
+  html += `<h1 style="font-size:26px;font-weight:bold;color:#1C1814;margin:0 0 4px;letter-spacing:-0.01em;">${d.name} Treatment Plan</h1>`;
+  html += `<p style="margin:0 0 4px;color:#6B6157;font-size:13px;">${d.generic}</p>`;
+  html += `<p style="margin:0 0 18px;color:#6B6157;font-size:12px;">Dr H. Balachandran MBBS &middot; FRACGP &nbsp;&middot;&nbsp; ${fmtDateLong(todayISO)}</p>`;
+  html += `<table style="border-collapse:collapse;margin-bottom:18px;font-size:13px;border:none;"><tr><td style="padding:4px 20px 4px 0;font-weight:bold;white-space:nowrap;vertical-align:top;border:none;">Patient</td><td style="padding:4px 0;border:none;">${patientName}${patientDOB ? ' &nbsp;&middot;&nbsp; DOB: ' + patientDOB : ''}</td></tr>`;
+  html += `<tr><td style="padding:4px 20px 4px 0;font-weight:bold;white-space:nowrap;vertical-align:top;border:none;">Start Date</td><td style="padding:4px 0;border:none;">${fmtDateLong(startDate)}</td></tr>`;
+  html += `<tr><td style="padding:4px 20px 4px 0;font-weight:bold;white-space:nowrap;vertical-align:top;border:none;">Total Phases</td><td style="padding:4px 0;border:none;">${phaseNums.length}</td></tr></table>`;
+  html += `<hr style="border:none;border-top:2px solid #1C1814;margin:0 0 22px;"/>`;
+
+  // Treatment Areas by Phase — major section heading (level 2)
+  html += `<h2 style="font-size:16px;font-weight:bold;letter-spacing:0.5px;text-transform:uppercase;color:#2C6EAB;border-bottom:2px solid #2C6EAB;padding-bottom:6px;margin:0 0 16px;">Treatment Areas by Phase</h2>`;
+  phaseNums.forEach((ph, i) => {
+    const pd = phaseData[ph];
+    if (!pd) return;
+    const col = PHASE_COLS_HEX[i % PHASE_COLS_HEX.length];
+    const bg  = PHASE_BG_HEX[i % PHASE_BG_HEX.length];
+    html += `<div style="background:${bg};border-left:5px solid ${col};padding:14px 18px;margin-bottom:16px;border-radius:0 4px 4px 0;">`;
+    html += `<p style="margin:0 0 10px;font-size:14px;font-weight:bold;color:${col};letter-spacing:0.8px;text-transform:uppercase;">Phase ${ph} &nbsp;&middot;&nbsp; ${fmtDate(pd.start)} &rarr; ${fmtDate(pd.end)} &nbsp;&middot;&nbsp; ${pd.durationWeeks} week${pd.durationWeeks!==1?'s':''}</p>`;
+    pd.zones.forEach(z => {
+      const ind = d.indications[z.indication];
+      if (!ind) return;
+      html += `<p style="margin:0 0 4px;font-size:16px;font-weight:bold;color:#1C1814;">${z.label}</p>`;
+      html += `<p style="margin:0 0 9px;font-size:13px;color:${col};font-weight:600;">${ind.label}</p>`;
+      html += `<table style="border-collapse:collapse;font-size:13px;margin-bottom:8px;border:none;">`;
+      html += `<tr><td style="padding:4px 20px 4px 0;color:#9C9089;white-space:nowrap;vertical-align:top;width:80px;border:none;">Frequency</td><td style="padding:4px 0;line-height:1.5;border:none;">${ind.freq}</td></tr>`;
+      html += `<tr><td style="padding:4px 20px 4px 0;color:#9C9089;white-space:nowrap;vertical-align:top;border:none;">Duration</td><td style="padding:4px 0;line-height:1.5;border:none;">${ind.durationLabel}</td></tr>`;
+      html += `<tr><td style="padding:4px 20px 4px 0;color:#9C9089;white-space:nowrap;vertical-align:top;border:none;">Reviews</td><td style="padding:4px 0;line-height:1.5;border:none;">${ind.review}</td></tr>`;
+      html += `<tr><td style="padding:4px 20px 4px 0;color:#9C9089;white-space:nowrap;vertical-align:top;border:none;">Endpoint</td><td style="padding:4px 0;line-height:1.5;border:none;">${ind.target}</td></tr></table>`;
+      if (z.notes && z.notes.trim()) html += `<p style="margin:6px 0 0;font-size:12px;color:#6B6157;font-style:italic;">Doctor's notes: ${z.notes}</p>`;
+    });
+    html += `</div>`;
+  });
+
+  // Instructions — major section heading (level 2)
+  html += `<h2 style="font-size:16px;font-weight:bold;letter-spacing:0.5px;text-transform:uppercase;color:#3A6B4C;border-bottom:2px solid #3A6B4C;padding-bottom:6px;margin:26px 0 16px;">Instructions</h2>`;
+  uniqueInds.forEach(indKey => {
+    const ind = d.indications[indKey];
+    if (!ind || !ind.instructions) return;
+    if (uniqueInds.length > 1) html += `<p style="margin:0 0 9px;font-weight:bold;font-size:14px;">${ind.label} — ${indGroups[indKey].join(', ')}</p>`;
+    html += `<ol style="margin:0 0 18px;padding-left:22px;">`;
+    ind.instructions.forEach(([, text]) => {
+      html += `<li style="margin-bottom:9px;font-size:14px;line-height:1.65;">${text}</li>`;
+    });
+    html += `</ol>`;
+  });
+
+  // When to seek review — major section heading (level 2)
+  html += `<h2 style="font-size:16px;font-weight:bold;letter-spacing:0.5px;text-transform:uppercase;color:#C4503A;border-bottom:2px solid #C4503A;padding-bottom:6px;margin:26px 0 12px;">&#9888; When to Seek an Earlier Review</h2>`;
+  html += `<p style="margin:0 0 14px;font-size:13px;color:#6B6157;">The following are <strong>not</strong> normal parts of treatment. Stop the cream and contact us if any of these occur.</p>`;
+
+  const warnItems = [
+    ["●","#C4503A","Signs of infection","Increasing warmth, swelling, pus, or weeping not settling"],
+    ["●","#C4503A","Spreading redness","Redness or crusting spreading well beyond the treatment area"],
+    ["●","#C4503A","Severe pain","Pain not controlled with paracetamol"],
+    [drug!=="klisyri"?"●":"●", "#C4503A", drug!=="klisyri"?"Fever or flu-like symptoms":"Severe eye irritation", drug!=="klisyri"?"Feeling unwell, shivering, or feverish during treatment":"Rinse immediately if ointment contacts eyes"],
+    ["●","#B08A00", drug!=="klisyri"?"No reaction by day 10":"No reaction after course", drug!=="klisyri"?"The cream may not be absorbing correctly — contact us":"If no redness or scaling occurred at all after finishing"],
+    ["●","#B08A00","Reaction near eyes or lips","Significant irritation or swelling from accidental contact"],
+    ["●","#B08A00","Possible allergic reaction","Widespread rash, hives, or unusual swelling — stop immediately"],
+    ["●","#B08A00","Concerned about a lesion","A spot that looks different, is growing, or bleeding unexpectedly"],
+  ];
+  warnItems.forEach(([bullet, col, head, body]) => {
+    html += `<p style="margin:9px 0 2px;font-size:15px;line-height:1;"><span style="color:${col};font-size:16px;vertical-align:middle;">${bullet}</span> <strong style="font-size:14px;vertical-align:middle;">${head}</strong></p>`;
+    html += `<p style="margin:0 0 9px;font-size:13px;color:#6B6157;padding-left:22px;line-height:1.5;">${body}</p>`;
+  });
+
+  html += `<p style="margin:22px 0 0;font-size:12px;color:#9C9089;border-top:1px solid #E8E4DF;padding-top:12px;">Ongoing skin surveillance recommended every 6&ndash;12 months. &nbsp;&middot;&nbsp; Dr H. Balachandran MBBS &middot; FRACGP &nbsp;&middot;&nbsp; ${fmtDateLong(todayISO)}</p>`;
+  html += `</body></html>`;
+  return html;
+}
+const todayISO = new Date().toISOString().split("T")[0];
+
+function App() {
+  const [patientName, setPatientName] = useState("");
+  const [patientDOB, setPatientDOB]   = useState("");
+  const [drug, setDrug]               = useState("efudix");
+  const [zones, setZones]             = useState([]);
+  const [startDate, setStartDate]     = useState(todayISO);
+  const [freeText, setFreeText]       = useState("");
+  const [showPDF, setShowPDF]         = useState(false);
+  const [showText, setShowText]       = useState(false);
+  const [copied, setCopied]           = useState(false);
+  const [diagTab, setDiagTab]         = useState("body");
+  const dragId     = useRef(null);
+  const dragOverId = useRef(null);
+
+  const d       = DRUGS[drug];
+  const indKeys = Object.keys(d.indications);
+  const phaseData = computePhases(zones, startDate, drug);
+  const phaseNums = [...new Set(zones.map(z => z.phase))].sort((a, b) => a - b);
+  const allowedZones = d.allowedZones || null; // null = all zones allowed
+  const numPhases = maxPhase(zones);
+  const canGen    = patientName.trim() && zones.length > 0 && startDate;
+
+  function toggleZone(zone) {
+    if (allowedZones && !allowedZones.includes(zone.id)) return; // blocked for this drug
+    setZones(prev => {
+      if (prev.find(z => z.id === zone.id)) return prev.filter(z => z.id !== zone.id);
+      return [...prev, { id: zone.id, label: zone.label, indication: indKeys[0], notes: "", custom: false, phase: maxPhase(prev) || 1 }];
+    });
+  }
+
+  function addFreeZone() {
+    const text = freeText.trim();
+    if (!text) return;
+    setZones(prev => [...prev, { id: "custom_" + Date.now(), label: text, indication: indKeys[0], notes: "", custom: true, phase: maxPhase(prev) || 1 }]);
+    setFreeText("");
+  }
+
+  function updateZone(id, field, val) {
+    setZones(prev => prev.map(z => z.id === id ? { ...z, [field]: val } : z));
+  }
+
+  function removeZone(id) { setZones(prev => prev.filter(z => z.id !== id)); }
+
+  function onDragStart(e, id) { dragId.current = id; e.dataTransfer.effectAllowed = "move"; }
+  function onDragOver(e, id)  { e.preventDefault(); dragOverId.current = id; }
+  function onDrop(e) {
+    e.preventDefault();
+    const from = dragId.current, to = dragOverId.current;
+    if (!from || !to || from === to) return;
+    setZones(prev => {
+      const arr = [...prev];
+      const fi = arr.findIndex(z => z.id === from);
+      const ti = arr.findIndex(z => z.id === to);
+      const [item] = arr.splice(fi, 1);
+      arr.splice(ti, 0, item);
+      return arr;
+    });
+    dragId.current = dragOverId.current = null;
+  }
+
+  function resetAll() {
+    setPatientName(""); setPatientDOB(""); setZones([]); setFreeText(""); setStartDate(todayISO);
+  }
+
+  const isActive = id => zones.some(z => z.id === id);
+  const lastPhaseData = phaseData[phaseNums[phaseNums.length - 1]];
+
+  // ── Render ────────────────────────────────────────────────────────────────
+  return (
+    <>
+      {/* App header */}
+      <div className="app-header">
+        <div className="hdr-left">
+          <div className="hdr-logo">Topical <span>Rx</span> Builder</div>
+          <div className="hdr-div"/>
+          <div className="hdr-sub">Skin Cancer · Actinic Keratosis</div>
+        </div>
+      </div>
+
+      <div className="app">
+
+        {/* Step 1 */}
+        <div className="step-row">
+          <div className="step-lbl">Step 1 — Patient Details & Treatment Start Date</div>
+          <div className="patient-row">
+              <div className="fg w220">
+                <label>Patient Name</label>
+                <input value={patientName} onChange={e => setPatientName(e.target.value)} placeholder="Full name" />
+              </div>
+              <div className="fg w140">
+                <label>Date of Birth</label>
+                <input value={patientDOB} onChange={e => setPatientDOB(e.target.value)} placeholder="DD/MM/YYYY" />
+              </div>
+              <div className="fg w160">
+                <label>Phase 1 Start Date</label>
+                <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
+              </div>
+              <button className="reset-btn" onClick={resetAll}>↺ New patient</button>
+            </div>
+        </div>
+
+        {/* Step 2 */}
+        <div className="step-row">
+          <div className="step-lbl">Step 2 — Select Treatment</div>
+          <div className="drug-row">
+            {Object.entries(DRUGS).map(([key, data]) => (
+              <button key={key}
+                className={`drug-btn ${drug === key ? `sel-${key}` : ""}`}
+                onClick={() => { setDrug(key); setZones([]); }}>
+                <div className="drug-name" style={{ color: drug === key ? data.col : "#1C1814" }}>{data.name}</div>
+                <div className="drug-gen">{data.generic}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Step 3 */}
+        <div className="step-lbl">Step 3 — Select Treatment Areas, Assign Phases & Drag to Reorder</div>
+        <div className="builder">
+
+          {/* Diagram */}
+          <div className="diagram-card">
+            <div className="diag-tabs">
+              <button className={`diag-tab ${diagTab==="body"?"active":""}`} onClick={()=>setDiagTab("body")}>Full Body</button>
+              <button className={`diag-tab ${diagTab==="head"?"active":""}`} onClick={()=>setDiagTab("head")}>Head &amp; Neck</button>
+            </div>
+            <div className="diagram-hint">Tap a zone to select / deselect</div>
+
+            {/* ── BODY DIAGRAM ── */}
+            {diagTab === "body" && (<>
+              <div style={{display:"flex",justifyContent:"space-around",fontSize:"10px",color:"#9C9089",fontFamily:"DM Sans,sans-serif",marginBottom:"2px",paddingLeft:"8px",paddingRight:"8px"}}>
+                <span>FRONT</span><span>BACK</span>
+              </div>
+              <svg viewBox="0 0 440 500" width="100%" style={{display:"block"}}>
+                <defs><style>{`.bl{fill:#F5F2EE;stroke:#3A3530;stroke-width:1.4;stroke-linejoin:round;stroke-linecap:round;}.dt{fill:none;stroke:#3A3530;stroke-width:0.8;stroke-linecap:round;stroke-linejoin:round;}`}</style></defs>
+
+                {/* FRONT */}
+                <ellipse className="bl" cx="110" cy="34" rx="22" ry="26"/>
+                <ellipse className="bl" cx="88" cy="35" rx="4" ry="6"/>
+                <ellipse className="bl" cx="132" cy="35" rx="4" ry="6"/>
+                <path className="dt" d="M90,15 Q110,6 130,15"/>
+                <path className="dt" d="M103,30 Q110,38 117,30"/><path className="dt" d="M103,26 L107,27 M113,27 L117,26"/>
+                <path className="bl" d="M101,58 L101,72 L119,72 L119,58 Z"/>
+                <path className="bl" d="M101,72 Q82,73 70,83 L61,104 L61,188 Q61,194 67,194 L153,194 Q159,194 159,188 L159,104 L150,83 Q138,73 119,72 Z"/>
+                <circle className="dt" cx="93" cy="122" r="2.5"/><circle className="dt" cx="127" cy="122" r="2.5"/>
+                <ellipse className="dt" cx="110" cy="163" rx="3" ry="3.5"/>
+                <path className="dt" d="M101,75 Q110,78 119,75"/>
+                <path className="bl" d="M61,104 Q47,107 43,122 L41,156 Q41,163 48,164 L61,164 Z"/>
+                <path className="bl" d="M41,164 Q38,170 38,179 L38,210 Q38,216 45,217 L62,217 L61,164 Z"/>
+                <path className="bl" d="M38,217 Q33,220 33,228 L33,242 Q33,246 37,246 L65,246 Q69,246 69,242 L69,228 Q69,220 64,217 Z"/>
+                <path className="dt" d="M38,222 L37,244 M45,219 L44,245 M52,218 L51,245 M59,219 L58,244"/>
+                <path className="bl" d="M33,228 Q27,226 26,233 Q26,240 33,240"/>
+                <path className="bl" d="M159,104 Q173,107 177,122 L179,156 Q179,163 172,164 L159,164 Z"/>
+                <path className="bl" d="M179,164 Q182,170 182,179 L182,210 Q182,216 175,217 L158,217 L159,164 Z"/>
+                <path className="bl" d="M182,217 Q187,220 187,228 L187,242 Q187,246 183,246 L155,246 Q151,246 151,242 L151,228 Q151,220 156,217 Z"/>
+                <path className="dt" d="M182,222 L183,244 M175,219 L176,245 M168,218 L169,245 M161,219 L162,244"/>
+                <path className="bl" d="M187,228 Q193,226 194,233 Q194,240 187,240"/>
+                <path className="bl" d="M67,194 Q66,209 78,219 L110,224 L142,219 Q154,209 153,194 Z"/>
+                <path className="dt" d="M110,194 L110,224"/>
+                <path className="bl" d="M78,219 Q66,225 64,242 L62,292 Q62,301 71,302 L96,302 Q103,301 103,292 L101,242 Q99,225 92,219 Z"/>
+                <path className="dt" d="M64,289 Q80,299 101,289"/>
+                <path className="bl" d="M64,302 Q61,310 61,324 L61,378 Q61,387 71,388 L96,388 Q103,387 103,378 L103,324 Q103,310 101,302 Z"/>
+                <path className="bl" d="M61,388 L56,394 Q54,399 59,400 L101,400 Q106,400 106,395 L106,388 Z"/>
+                <path className="bl" d="M142,219 Q154,225 156,242 L158,292 Q158,301 149,302 L124,302 Q117,301 117,292 L119,242 Q121,225 128,219 Z"/>
+                <path className="dt" d="M156,289 Q140,299 119,289"/>
+                <path className="bl" d="M156,302 Q159,310 159,324 L159,378 Q159,387 149,388 L124,388 Q117,387 117,378 L117,324 Q117,310 119,302 Z"/>
+                <path className="bl" d="M159,388 L164,394 Q166,399 161,400 L119,400 Q114,400 114,395 L114,388 Z"/>
+                <text x="75" y="490" textAnchor="middle" fontSize="8.5" fill="#9C9089" fontFamily="DM Sans,sans-serif">Right</text>
+                <text x="145" y="490" textAnchor="middle" fontSize="8.5" fill="#9C9089" fontFamily="DM Sans,sans-serif">Left</text>
+                <text x="110" y="498" textAnchor="middle" fontSize="8" fill="#B0A89F" fontFamily="DM Sans,sans-serif">FRONT</text>
+
+                {/* BACK */}
+                <ellipse className="bl" cx="330" cy="34" rx="22" ry="26"/>
+                <ellipse className="bl" cx="308" cy="35" rx="4" ry="6"/>
+                <ellipse className="bl" cx="352" cy="35" rx="4" ry="6"/>
+                <path className="bl" d="M309,14 Q330,7 351,14 Q351,28 330,30 Q309,28 309,14 Z"/>
+                <path className="bl" d="M321,58 L321,72 L339,72 L339,58 Z"/>
+                <path className="bl" d="M321,72 Q299,72 286,84 L277,106 L277,194 Q277,200 283,200 L377,200 Q383,200 383,194 L383,106 L374,84 Q361,72 339,72 Z"/>
+                <path className="dt" d="M330,75 L330,195"/>
+                <path className="dt" d="M298,112 Q302,130 297,148"/><path className="dt" d="M362,112 Q358,130 363,148"/>
+                <path className="dt" d="M330,195 L330,222"/>
+                <path className="bl" d="M277,106 Q263,109 259,124 L257,158 Q257,165 264,166 L277,166 Z"/>
+                <path className="bl" d="M257,166 Q254,172 254,181 L254,212 Q254,218 261,219 L278,219 L277,166 Z"/>
+                <path className="bl" d="M254,219 Q249,222 249,231 L249,246 Q249,250 253,250 L280,250 Q284,250 284,246 L284,231 Q284,222 279,219 Z"/>
+                <path className="dt" d="M254,224 L253,248 M261,221 L260,249 M268,220 L267,249 M275,221 L274,248"/>
+                <path className="bl" d="M249,231 Q243,229 242,236 Q242,243 249,243"/>
+                <path className="bl" d="M383,106 Q397,109 401,124 L403,158 Q403,165 396,166 L383,166 Z"/>
+                <path className="bl" d="M403,166 Q406,172 406,181 L406,212 Q406,218 399,219 L382,219 L383,166 Z"/>
+                <path className="bl" d="M406,219 Q411,222 411,231 L411,246 Q411,250 407,250 L380,250 Q376,250 376,246 L376,231 Q376,222 381,219 Z"/>
+                <path className="dt" d="M406,224 L407,248 M399,221 L400,249 M392,220 L393,249 M385,221 L386,248"/>
+                <path className="bl" d="M411,231 Q417,229 418,236 Q418,243 411,243"/>
+                <path className="bl" d="M283,200 Q280,216 292,227 L330,232 L368,227 Q380,216 377,200 Z"/>
+                <path className="dt" d="M330,200 Q324,216 322,224 M330,200 Q336,216 338,224"/>
+                <path className="bl" d="M292,227 Q280,233 278,250 L276,300 Q276,309 285,310 L310,310 Q317,309 317,300 L315,250 Q313,233 306,227 Z"/>
+                <path className="dt" d="M278,297 Q294,308 315,297"/>
+                <path className="bl" d="M278,310 Q275,318 275,332 L275,382 Q275,391 285,392 L310,392 Q317,391 317,382 L317,332 Q317,318 315,310 Z"/>
+                <path className="bl" d="M275,392 L270,398 Q268,403 273,404 L315,404 Q320,404 320,399 L320,392 Z"/>
+                <path className="bl" d="M368,227 Q380,233 382,250 L384,300 Q384,309 375,310 L350,310 Q343,309 343,300 L345,250 Q347,233 354,227 Z"/>
+                <path className="dt" d="M382,297 Q366,308 345,297"/>
+                <path className="bl" d="M382,310 Q385,318 385,332 L385,382 Q385,391 375,392 L350,392 Q343,391 343,382 L343,332 Q343,318 345,310 Z"/>
+                <path className="bl" d="M382,392 L387,398 Q389,403 384,404 L342,404 Q337,404 337,399 L337,392 Z"/>
+                <text x="297" y="490" textAnchor="middle" fontSize="8.5" fill="#9C9089" fontFamily="DM Sans,sans-serif">Left</text>
+                <text x="363" y="490" textAnchor="middle" fontSize="8.5" fill="#9C9089" fontFamily="DM Sans,sans-serif">Right</text>
+                <text x="330" y="498" textAnchor="middle" fontSize="8" fill="#B0A89F" fontFamily="DM Sans,sans-serif">BACK</text>
+
+                {/* BODY ZONE OVERLAYS */}
+                {ZONES.filter(z=>z.diag==="body").map(z => {
+                  const zone = zones.find(x => x.id === z.id);
+                  const active = !!zone;
+                  const blocked = allowedZones && !allowedZones.includes(z.id);
+                  const col = active ? PHASE_COLS[(zone.phase - 1) % PHASE_COLS.length] : null;
+                  return (
+                    <g key={z.id} onClick={() => toggleZone(z)} style={{cursor:blocked?"not-allowed":"pointer",opacity:blocked?0.18:1}}>
+                      <ellipse cx={z.cx} cy={z.cy} rx={z.rx} ry={z.ry} fill={active?col:"transparent"} fillOpacity={active?0.30:0} stroke={active?col:blocked?"#C0B8B0":"#8A8078"} strokeWidth={active?2:1.2} strokeDasharray={active?"none":"3,2"}/>
+                      <text x={z.cx} y={z.cy} textAnchor="middle" dominantBaseline="middle" fontSize="7" fill={active?col:blocked?"#C0B8B0":"#6A6058"} fontFamily="DM Sans,sans-serif" fontWeight={active?"600":"400"} style={{pointerEvents:"none",userSelect:"none"}}>{shortLabel(z.label)}</text>
+                      {active && <text x={z.cx} y={z.cy+z.ry-5} textAnchor="middle" dominantBaseline="middle" fontSize="6" fill={col} fontFamily="DM Sans,sans-serif" fontWeight="700" style={{pointerEvents:"none",userSelect:"none"}}>P{zone.phase}</text>}
+                    </g>
+                  );
+                })}
+              </svg>
+            </>)}
+
+            {diagTab === "head" && (<>
+              <div style={{fontSize:"10px",color:"#9C9089",fontFamily:"DM Sans,sans-serif",textAlign:"center",marginBottom:"4px",letterSpacing:"0.08em"}}>
+                TAP A ZONE TO SELECT
+              </div>
+              <svg viewBox="0 0 260 310" width="100%" style={{display:"block"}}>
+                <defs>
+                  <style>{`
+                    .fs{fill:#F2C27A;stroke:#1A1208;stroke-linejoin:round;stroke-linecap:round;}
+                    .fd{fill:none;stroke:#1A1208;stroke-linecap:round;stroke-linejoin:round;}
+                    .fe{fill:#4A2A0A;}
+                    .fw{fill:white;}
+                    .fl{fill:#F2C27A;stroke:#1A1208;stroke-width:1.4;stroke-linejoin:round;}
+                  `}</style>
+                </defs>
+
+                {/* ── NECK ── */}
+                {/* Left neck */}
+                <path className="fs" strokeWidth="2" d="M 130,248 C 118,248 102,250 94,256 L 88,268 L 88,300 L 130,300 Z"/>
+                {/* Right neck */}
+                <path className="fs" strokeWidth="2" d="M 130,248 C 142,248 158,250 166,256 L 172,268 L 172,300 L 130,300 Z"/>
+                {/* SCM lines */}
+                <path className="fd" strokeWidth="1" d="M 116,252 C 112,262 110,278 110,296"/>
+                <path className="fd" strokeWidth="1" d="M 144,252 C 148,262 150,278 150,296"/>
+                {/* Throat notch */}
+                <path className="fd" strokeWidth="1.2" d="M 122,248 C 126,254 130,256 134,254 C 136,252 138,250 138,248"/>
+
+                {/* ── EARS ── */}
+                {/* Right ear (patient's right = diagram left) */}
+                <path className="fl" d="M 36,138 C 28,138 20,144 18,152 C 16,160 18,170 24,176 C 28,180 34,180 38,177 C 42,174 44,168 43,162 C 42,158 39,155 38,152 C 37,149 38,146 40,144 C 42,142 44,143 44,146"/>
+                <path className="fd" strokeWidth="0.9" d="M 28,148 C 24,154 24,164 28,170"/>
+                <path className="fd" strokeWidth="0.9" d="M 32,150 C 29,156 29,164 32,168"/>
+
+                {/* Left ear */}
+                <path className="fl" d="M 224,138 C 232,138 240,144 242,152 C 244,160 242,170 236,176 C 232,180 226,180 222,177 C 218,174 216,168 217,162 C 218,158 221,155 222,152 C 223,149 222,146 220,144 C 218,142 216,143 216,146"/>
+                <path className="fd" strokeWidth="0.9" d="M 232,148 C 236,154 236,164 232,170"/>
+                <path className="fd" strokeWidth="0.9" d="M 228,150 C 231,156 231,164 228,168"/>
+
+                {/* ── MAIN HEAD SILHOUETTE ── */}
+                {/* Draw head last so it overlaps ears cleanly */}
+                <path className="fs" strokeWidth="2.2" d="
+                  M 130,12
+                  C 98,12 72,24 56,46
+                  C 42,66 38,90 40,114
+                  C 42,136 48,152 50,162
+                  C 52,172 50,180 48,188
+                  C 46,196 46,204 52,210
+                  C 58,216 68,218 80,218
+                  C 96,218 112,214 122,210
+                  C 126,208 128,206 130,204
+                  C 132,206 134,208 138,210
+                  C 148,214 164,218 180,218
+                  C 192,218 202,216 208,210
+                  C 214,204 214,196 212,188
+                  C 210,180 208,172 210,162
+                  C 212,152 218,136 220,114
+                  C 222,90 218,66 204,46
+                  C 188,24 162,12 130,12 Z
+                "/>
+
+                {/* ── FACIAL FEATURES ── */}
+
+                {/* Eyebrows */}
+                <path className="fd" strokeWidth="2.2" d="M 82,98 C 88,94 98,92 108,94"/>
+                <path className="fd" strokeWidth="2.2" d="M 178,98 C 172,94 162,92 152,94"/>
+
+                {/* Eyes — right */}
+                <path className="fs" strokeWidth="1.2" d="M 80,110 C 86,104 100,104 108,110 C 100,116 86,116 80,110 Z"/>
+                <ellipse className="fe" cx="94" cy="110" rx="7" ry="6"/>
+                <ellipse fill="#1A1208" cx="94" cy="110" rx="3.5" ry="3.5"/>
+                <ellipse className="fw" cx="96" cy="108" rx="1.5" ry="1.5"/>
+                {/* upper lash line */}
+                <path className="fd" strokeWidth="1.4" d="M 80,110 C 86,104 100,104 108,110"/>
+
+                {/* Eyes — left */}
+                <path className="fs" strokeWidth="1.2" d="M 180,110 C 174,104 160,104 152,110 C 160,116 174,116 180,110 Z"/>
+                <ellipse className="fe" cx="166" cy="110" rx="7" ry="6"/>
+                <ellipse fill="#1A1208" cx="166" cy="110" rx="3.5" ry="3.5"/>
+                <ellipse className="fw" cx="168" cy="108" rx="1.5" ry="1.5"/>
+                <path className="fd" strokeWidth="1.4" d="M 180,110 C 174,104 160,104 152,110"/>
+
+                {/* Nose */}
+                {/* bridge */}
+                <path className="fd" strokeWidth="1.2" d="M 118,108 C 116,118 116,130 118,140"/>
+                <path className="fd" strokeWidth="1.2" d="M 142,108 C 144,118 144,130 142,140"/>
+                {/* tip */}
+                <path className="fd" strokeWidth="1.4" d="M 118,140 C 120,148 126,152 130,152 C 134,152 140,148 142,140"/>
+                {/* nostrils */}
+                <path className="fd" strokeWidth="1.2" d="M 112,144 C 108,148 108,154 112,156 C 116,158 120,155 120,152"/>
+                <path className="fd" strokeWidth="1.2" d="M 148,144 C 152,148 152,154 148,156 C 144,158 140,155 140,152"/>
+
+                {/* Mouth */}
+                {/* upper lip */}
+                <path className="fd" strokeWidth="1.4" d="M 110,182 C 116,176 122,174 130,175 C 138,174 144,176 150,182"/>
+                {/* lower lip */}
+                <path className="fd" strokeWidth="1.6" d="M 110,182 C 116,190 124,194 130,194 C 136,194 144,190 150,182"/>
+                {/* philtrum */}
+                <path className="fd" strokeWidth="0.9" d="M 126,166 C 126,170 126,174 128,178"/>
+                <path className="fd" strokeWidth="0.9" d="M 134,166 C 134,170 134,174 132,178"/>
+
+                {/* Chin crease */}
+                <path className="fd" strokeWidth="0.9" d="M 118,210 C 124,214 130,215 136,214 C 140,213 144,210 146,208"/>
+
+                {/* Nasolabial folds */}
+                <path className="fd" strokeWidth="1" d="M 112,152 C 108,160 108,172 110,180"/>
+                <path className="fd" strokeWidth="1" d="M 148,152 C 152,160 152,172 150,180"/>
+
+                {/* ── ZONE OVERLAYS ── */}
+                {ZONES.filter(z=>z.diag==="head").map(z => {
+                  const zone = zones.find(x => x.id === z.id);
+                  const active = !!zone;
+                  const blocked = allowedZones && !allowedZones.includes(z.id);
+                  const col = active ? PHASE_COLS[(zone.phase-1) % PHASE_COLS.length] : null;
+                  return (
+                    <g key={z.id} onClick={() => toggleZone(z)} style={{cursor:blocked?"not-allowed":"pointer",opacity:blocked?0.2:1}}>
+                      <ellipse cx={z.cx} cy={z.cy} rx={z.rx} ry={z.ry}
+                        fill={active ? col : "transparent"}
+                        fillOpacity={active ? 0.36 : 0}
+                        stroke={active ? col : "rgba(26,18,8,0.28)"}
+                        strokeWidth={active ? 2.2 : 1.4}
+                        strokeDasharray={active ? "none" : "3,2.5"}/>
+                      <text x={z.cx} y={z.cy} textAnchor="middle" dominantBaseline="middle"
+                        fontSize="7.5" fill={active ? col : "#2A1A06"}
+                        fontFamily="DM Sans,sans-serif" fontWeight={active?"700":"600"}
+                        style={{pointerEvents:"none",userSelect:"none"}}>
+                        {z.label}
+                      </text>
+                      {active && <text x={z.cx} y={z.cy+z.ry-6} textAnchor="middle" dominantBaseline="middle"
+                        fontSize="6.5" fill={col} fontFamily="DM Sans,sans-serif" fontWeight="700"
+                        style={{pointerEvents:"none",userSelect:"none"}}>P{zone.phase}</text>}
+                    </g>
+                  );
+                })}
+              </svg>
+            </>)}
+
+            {/* Phase legend */}
+            {zones.length > 0 && (
+              <div className="phase-legend">
+                {phaseNums.map(ph => {
+                  const col = PHASE_COLS[(ph-1) % PHASE_COLS.length];
+                  const soft = PHASE_SOFT[(ph-1) % PHASE_SOFT.length];
+                  const pd = phaseData[ph];
+                  return (
+                    <div key={ph} className="legend-item" style={{background:soft}}>
+                      <div className="legend-dot" style={{background:col}}/>
+                      <span className="legend-name" style={{color:col}}>Phase {ph}</span>
+                      {pd && <span className="legend-date">{fmtDate(pd.start)}</span>}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Right column */}
+          <div className="zones-col">
+
+            {/* Klisyri restriction banner */}
+            {drug === "klisyri" && (
+              <div className="klisyri-banner">
+                <strong>⚠ Klisyri® — Face &amp; Scalp Only</strong><br/>
+                TGA approval is restricted to face and scalp. Body diagram zones outside this area are greyed out and cannot be selected. Use the free-text spot entry below only for face/scalp locations.
+              </div>
+            )}
+
+            {/* Compound off-label banner */}
+            {drug === "compound" && (
+              <div className="klisyri-banner" style={{background:"#F3EEF9",borderColor:"#7B4FA0",color:"#7B4FA0"}}>
+                <strong>⚠ Compounded preparation — off-label use</strong><br/>
+                Fluorouracil 5% + Calcipotriol 0.005% is not TGA-approved as a combination. Informed consent must be documented before prescribing. Script goes to a compounding chemist — 15g per course (face). Repeats required for arms, chest, or larger fields.
+              </div>
+            )}
+
+            {/* Free text entry */}
+            <div className="free-zone-row">
+              <input className="free-zone-input"
+                placeholder="Type a spot — e.g. L temple, R dorsal hand, tip of nose…"
+                value={freeText}
+                onChange={e => setFreeText(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && addFreeZone()} />
+              <button className="free-zone-add" disabled={!freeText.trim()} onClick={addFreeZone}>+ Add Spot</button>
+            </div>
+
+            {/* Timeline preview */}
+            {zones.length > 0 && startDate && (
+              <div className="timeline-preview">
+                <div className="tl-title">Treatment Timeline</div>
+                {phaseNums.map(ph => {
+                  const pd = phaseData[ph];
+                  if (!pd) return null;
+                  const col = PHASE_COLS[(ph-1) % PHASE_COLS.length];
+                  const soft = PHASE_SOFT[(ph-1) % PHASE_SOFT.length];
+                  return (
+                    <div key={ph} className="tl-row">
+                      <div className="tl-pill" style={{background:soft,color:col}}>Phase {ph}</div>
+                      <div className="tl-bar-wrap">
+                        <div className="tl-bar" style={{background:col,width:`${Math.min(100, pd.durationWeeks/8*100)}%`,minWidth:60}}>
+                          <span className="tl-bar-label">{pd.zones.map(z=>z.label).join(", ")}</span>
+                        </div>
+                      </div>
+                      <div className="tl-dates">{fmtDate(pd.start)} → {fmtDate(pd.end)}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Zone cards */}
+            {zones.length === 0 ? (
+              <div className="empty-state">
+                <div className="empty-icon">👆</div>
+                Type a spot above or tap the body diagram to add treatment areas
+              </div>
+            ) : (
+              phaseNums.map(ph => {
+                const col  = PHASE_COLS[(ph-1) % PHASE_COLS.length];
+                const soft = PHASE_SOFT[(ph-1) % PHASE_SOFT.length];
+                const pd   = phaseData[ph];
+                const zonesInPhase = zones.filter(z => z.phase === ph);
+                return (
+                  <div key={ph} className="phase-section">
+                    <div className="phase-header" style={{borderColor:col}}>
+                      <span className="phase-pill" style={{background:soft,color:col}}>Phase {ph}</span>
+                      {pd && <span className="phase-dates">{fmtDate(pd.start)} — {fmtDate(pd.end)} · {pd.durationWeeks} weeks</span>}
+                    </div>
+                    {zonesInPhase.map(z => {
+                      const ind = d.indications[z.indication];
+                      return (
+                        <div key={z.id} className="zone-card"
+                          draggable
+                          onDragStart={e => onDragStart(e, z.id)}
+                          onDragOver={e => onDragOver(e, z.id)}
+                          onDrop={onDrop}>
+                          <div className="zone-hd">
+                            <span className="drag-handle">⠿</span>
+                            <div className="zone-phase-dot" style={{background:col}}/>
+                            <div className="zone-lbl">
+                              {z.label}
+                              {z.custom && <span className="custom-badge">spot</span>}
+                            </div>
+                            <div className="zone-controls">
+                              <select className="phase-select-sm" value={z.phase}
+                                onChange={e => updateZone(z.id, "phase", Number(e.target.value))}>
+                                {Array.from({length: numPhases + 1}, (_, i) => i + 1).map(p => (
+                                  <option key={p} value={p}>Phase {p}</option>
+                                ))}
+                              </select>
+                              <button className="zone-x" onClick={() => removeZone(z.id)}>×</button>
+                            </div>
+                          </div>
+                          <div className="zone-body">
+                            <div>
+                              <div className="mini-lbl">Indication</div>
+                              <select className="ind-select" value={z.indication}
+                                onChange={e => updateZone(z.id, "indication", e.target.value)}>
+                                {indKeys.map(k => <option key={k} value={k}>{d.indications[k].label}</option>)}
+                              </select>
+                            </div>
+                            {ind && (
+                              <div className="info-box">
+                                <div className="info-grid">
+                                  <div className="info-item"><strong>Frequency</strong>{ind.freq}</div>
+                                  <div className="info-item"><strong>Duration</strong>{ind.durationLabel}</div>
+                                  <div className="info-item"><strong>Reviews</strong>{ind.review}</div>
+                                  <div className="info-item"><strong>Target</strong>{ind.target}</div>
+                                </div>
+                                <div className="info-note">{ind.note}</div>
+                              </div>
+                            )}
+                            <div>
+                              <div className="mini-lbl">Doctor's notes (optional)</div>
+                              <textarea className="notes-ta"
+                                placeholder="e.g. spot only, avoid periorbital area, patient tolerated well previously…"
+                                value={z.notes}
+                                onChange={e => updateZone(z.id, "notes", e.target.value)} />
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })
+            )}
+
+            <div className="gen-row">
+              {!canGen && (
+                <div className="gen-hint">
+                  {!patientName.trim() ? "Enter patient name to continue"
+                    : !startDate ? "Set a start date"
+                    : "Select at least one treatment area"}
+                </div>
+              )}
+              <button className="gen-btn" disabled={!canGen} onClick={() => setShowPDF(true)}>
+                Generate Plan →
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── PDF Modal ── */}
+      {showPDF && (
+        <div className="overlay" onClick={e => e.target === e.currentTarget && setShowPDF(false)}>
+          <div className="modal">
+            <button className="modal-close" onClick={() => setShowPDF(false)}>×</button>
+
+            {/* Header */}
+            <div className="m-header">
+              <div>
+                <div className="m-title">
+                  <em style={{color:d.col}}>{d.name}</em> Treatment Plan
+                </div>
+              </div>
+              <div className="m-meta">
+                <strong>Dr H. Balachandran</strong><br/>
+                MBBS · FRACGP<br/>
+                {fmtDateLong(todayISO)}
+              </div>
+            </div>
+
+            {/* Patient strip */}
+            <div className="m-patient">
+              <div><div className="pl">Patient</div><div className="pv">{patientName}</div></div>
+              {patientDOB && <><div className="m-pdiv"/><div><div className="pl">Date of Birth</div><div className="pv">{patientDOB}</div></div></>}
+              <div><div className="pl">Treatment Start</div><div className="pv">{fmtDateLong(startDate)}</div></div>
+              <div style={{marginLeft:"auto"}}><div className="pl">Total Phases</div><div className="pv">{phaseNums.length}</div></div>
+            </div>
+
+            {/* Prescription */}
+            <div className="m-slbl">Prescription</div>
+            <div className="m-rx">
+              <div className="m-rx-name">{d.name} <span>({d.generic})</span></div>
+              <div className="m-rx-detail">Private prescription · 40 g tube · 1 repeat per phase</div>
+              <div className="m-rx-grid">
+                <div className="m-rx-cell"><div className="cl">Drug</div><div className="cv">{d.name}</div></div>
+                <div className="m-rx-cell"><div className="cl">Phases</div><div className="cv">{phaseNums.length} sequential course{phaseNums.length !== 1 ? "s" : ""}</div></div>
+                <div className="m-rx-cell"><div className="cl">PBS Status</div><div className="cv">{drug === "klisyri" ? "Private — not PBS listed" : drug === "aldara" ? "PBS restricted benefit (AKs)" : "Private — not PBS listed"}</div></div>
+              </div>
+            </div>
+
+            {/* Timeline overview */}
+            <div className="m-slbl">Treatment Timeline</div>
+            <div className="m-gen" style={{marginBottom:8}}>
+              {phaseNums.map(ph => {
+                const pd   = phaseData[ph];
+                const col  = PHASE_COLS[(ph-1) % PHASE_COLS.length];
+                const soft = PHASE_SOFT[(ph-1) % PHASE_SOFT.length];
+                return (
+                  <div key={ph} className="m-tl-row">
+                    <div className="m-tl-pill" style={{background:soft,color:col}}>Phase {ph}</div>
+                    <div className="m-tl-info">
+                      {pd.zones.map(z => z.label).join(" + ")}
+                      <span style={{color:"#9C9089"}}> · {pd.durationWeeks} week{pd.durationWeeks !== 1 ? "s" : ""}</span>
+                    </div>
+                    <div className="m-tl-dates">{fmtDate(pd.start)} → {fmtDate(pd.end)}</div>
+                  </div>
+                );
+              })}
+              {lastPhaseData && (
+                <div style={{fontSize:12,color:"#9C9089",borderTop:"1px solid #E8E4DF",paddingTop:8,marginTop:8}}>
+                  Estimated completion: <strong style={{color:"#1C1814"}}>{fmtDateLong(lastPhaseData.end)}</strong>
+                  &nbsp;·&nbsp; Final review: <strong style={{color:"#1C1814"}}>{fmtDateLong(addWeeks(lastPhaseData.end, 8))}</strong>
+                </div>
+              )}
+            </div>
+
+            {/* Phase details */}
+            <div className="m-slbl">Treatment Areas by Phase</div>
+            {phaseNums.map(ph => {
+              const pd   = phaseData[ph];
+              const col  = PHASE_COLS[(ph-1) % PHASE_COLS.length];
+              const soft = PHASE_SOFT[(ph-1) % PHASE_SOFT.length];
+              return (
+                <div key={ph} className="m-phase-block">
+                  <div className="m-phase-hd" style={{background:soft,borderColor:col+"33"}}>
+                    <span className="m-phase-hd-pill" style={{background:col,color:"#fff"}}>Phase {ph}</span>
+                    <span style={{fontSize:13,color:"#1C1814",fontWeight:500}}>
+                      {pd.zones.map(z => z.label).join(" + ")}
+                    </span>
+                    <span className="m-phase-hd-dates">{fmtDate(pd.start)} → {fmtDate(pd.end)} · {pd.durationWeeks} weeks</span>
+                  </div>
+                  {pd.zones.map(z => {
+                    const ind = d.indications[z.indication];
+                    return (
+                      <div key={z.id} className="m-zone">
+                        <div className="m-zone-head" style={{color:col}}>{z.label}</div>
+                        <div className="m-ind-chip" style={{background:soft,color:col}}>{ind.label}</div>
+                        <div className="m-zone-grid">
+                          <div className="m-zone-row"><span>Frequency: </span>{ind.freq}</div>
+                          <div className="m-zone-row"><span>Duration: </span>{ind.durationLabel}</div>
+                          <div className="m-zone-row"><span>Reviews: </span>{ind.review}</div>
+                          <div className="m-zone-row"><span>Target: </span>{ind.target}</div>
+                        </div>
+                        <div className="m-zone-clinote">{ind.note}</div>
+                        {z.notes.trim() && (
+                          <div className="m-zone-drtext">
+                            <strong>Doctor's Notes</strong>{z.notes}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })}
+
+            {/* General instructions — per indication */}
+            {(() => {
+              // Group zones by indication key
+              const indGroups = {};
+              zones.forEach(z => {
+                if (!indGroups[z.indication]) indGroups[z.indication] = [];
+                indGroups[z.indication].push(z.label);
+              });
+              const uniqueIndications = Object.keys(indGroups);
+              return uniqueIndications.map(indKey => {
+                const ind = d.indications[indKey];
+                if (!ind || !ind.instructions) return null;
+                const zoneLabels = indGroups[indKey].join(", ");
+                const multiInd = uniqueIndications.length > 1;
+                return (
+                  <div key={indKey}>
+                    <div className="m-slbl">
+                      Instructions{multiInd ? ` — ${ind.label}` : ""}
+                      {multiInd && <span style={{fontSize:11,fontWeight:400,color:"#9C9089",marginLeft:8}}>({zoneLabels})</span>}
+                    </div>
+                    <div className="m-gen">
+                      <ul>
+                        {ind.instructions.map(([key, text]) => (
+                          <li key={key} dangerouslySetInnerHTML={{__html: text}} />
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                );
+              });
+            })()}
+
+            {/* Early review */}
+            <div className="m-slbl" style={{color:"#C4503A",borderBottomColor:"#F0E0DC"}}>⚠ Book an Earlier Appointment If…</div>
+            <div className="m-early">
+              <div className="m-early-intro">
+                The following are <strong>not</strong> normal parts of treatment. If any occur, <strong>stop the cream and contact the practice</strong> to arrange an earlier review. You can send a photo via the practice messaging system.
+              </div>
+              <div className="m-early-grid">
+                {[
+                  ["●","#C4503A","Signs of infection","Increasing warmth, swelling, pus, or weeping that is not settling"],
+                  ["●","#C4503A","Spreading redness","Redness or crusting spreading well beyond the intended treatment area"],
+                  ["●","#C4503A","Severe pain","Discomfort is expected — severe pain not controlled with paracetamol is not"],
+                  ...(drug !== "klisyri" ? [["●","#C4503A","Fever or flu-like symptoms","Feeling unwell or shivering — especially relevant with Aldara"]] : [["●","#C4503A","Severe eye irritation","If ointment contacts eyes — rinse immediately and contact us"]]),
+                  ...(drug !== "klisyri" ? [["●","#B08A00","No reaction by day 10","Contact us — the cream may not be absorbing correctly"]] : [["●","#B08A00","No reaction after course completion","If no redness or scaling occurred at all — contact us to review"]]),
+                  ["●","#B08A00","Reaction near eyes, lips, or nostrils","Significant irritation or swelling from accidental contact"],
+                  ["●","#B08A00","Allergic reaction","Widespread rash, hives, or unusual swelling — stop immediately"],
+                  ["●","#B08A00","Concerned about a lesion","A spot that looks different, is growing, bleeding, or not behaving as expected"],
+                ].map(([icon, head, body]) => (
+                  <div key={head} className="m-early-item">
+                    <div className="m-early-icon">{icon}</div>
+                    <div>
+                      <div className="m-early-head">{head}</div>
+                      <div className="m-early-body">{body}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="m-early-footer">
+                For non-urgent questions, send a photo for review. For urgent concerns, call during business hours or present to your nearest Emergency Department after hours.
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="m-footer">
+              <div>
+                Ongoing skin surveillance recommended every 6–12 months.
+              </div>
+              <div style={{textAlign:"right"}}>
+                <div className="sig-line"/>
+                Dr H. Balachandran MBBS · FRACGP<br/>
+                {fmtDateLong(todayISO)}
+              </div>
+            </div>
+
+            <div className="m-actions">
+              <button className="btn-back" onClick={() => setShowPDF(false)}>← Edit</button>
+              <button className="btn-print" onClick={() => { setShowText(t => !t); setCopied(false); }}>
+                {showText ? "Hide Text" : "📋 Show Text for Best Practice"}
+              </button>
+            </div>
+
+            {/* Inline styled panel */}
+            {showText && (() => {
+              const txt = buildTXT(patientName, patientDOB, d, zones, phaseData, phaseNums, startDate, todayISO, drug);
+              const phaseColors = ["blue","red","green","gold","purple"];
+              const phaseBg = ["#E8F0F8","#FBF0EE","#EBF3EE","#F5EDD8","#F3EDF8"];
+              const phaseCol = ["#2C6EAB","#C4503A","#3A6B4C","#8B6914","#7B3FA0"];
+
+              // build per-indication instruction groups
+              const indGroups = {};
+              zones.forEach(z => {
+                if (!indGroups[z.indication]) indGroups[z.indication] = [];
+                indGroups[z.indication].push(z.label);
+              });
+              const uniqueInds = Object.keys(indGroups);
+
+              const warnItems = [
+                ["●","#C4503A","Signs of infection","Increasing warmth, swelling, pus, or weeping that is not settling"],
+                ["●","#C4503A","Spreading redness","Redness or crusting spreading well beyond the intended treatment area"],
+                ["●","#C4503A","Severe pain","Discomfort is expected — severe pain not controlled with paracetamol is not"],
+                ...(drug !== "klisyri" ? [["●","#C4503A","Fever or flu-like symptoms","Feeling unwell or shivering — especially relevant with Aldara"]] : [["●","#C4503A","Severe eye irritation","If ointment contacts eyes — rinse immediately and contact us"]]),
+                ...(drug !== "klisyri" ? [["●","#B08A00","No reaction by day 10","Contact us — the cream may not be absorbing correctly"]] : [["●","#B08A00","No reaction after course","If no redness or scaling occurred — contact us to review"]]),
+                ["●","#B08A00","Reaction near eyes or lips","Significant irritation or swelling from accidental contact"],
+                ["●","#B08A00","Possible allergic reaction","Widespread rash, hives, or unusual swelling — stop immediately"],
+                ["●","#B08A00","Concerned about a lesion","A spot that looks different, growing, bleeding, or not behaving as expected"],
+              ];
+
+              return (
+                <div className="txt-panel">
+                  <div className="txt-panel-bar">
+                    <span className="txt-panel-label">📋 Ready to paste into Best Practice</span>
+                    <button
+                      className={"btn-copy" + (copied ? " done" : "")}
+                      onClick={() => {
+                        const htmlContent = buildClipboardHTML(patientName, patientDOB, d, zones, phaseData, phaseNums, startDate, todayISO, drug);
+                        const plainContent = buildTXT(patientName, patientDOB, d, zones, phaseData, phaseNums, startDate, todayISO, drug);
+                        try {
+                          const item = new ClipboardItem({
+                            'text/html':  new Blob([htmlContent],  {type:'text/html'}),
+                            'text/plain': new Blob([plainContent], {type:'text/plain'}),
+                          });
+                          navigator.clipboard.write([item]).then(() => {
+                            setCopied(true);
+                            setTimeout(() => setCopied(false), 2500);
+                          });
+                        } catch(e) {
+                          // Fallback to plain text if ClipboardItem not supported
+                          navigator.clipboard.writeText(plainContent).then(() => {
+                            setCopied(true);
+                            setTimeout(() => setCopied(false), 2500);
+                          });
+                        }
+                      }}>
+                      {copied ? "✓ Copied!" : "Copy for Best Practice"}
+                    </button>
+                  </div>
+
+                  <div className="rp-panel">
+
+                    {/* Title */}
+                    <div className="rp-title">{d.name} Treatment Plan</div>
+                    <div className="rp-drug">{d.generic}</div>
+                    <div className="rp-meta">
+                      Dr H. Balachandran MBBS · FRACGP &nbsp;·&nbsp; {fmtDateLong(todayISO)}<br/>
+                      <strong style={{color:"#1C1814"}}>{patientName}</strong>
+                      {patientDOB && <> &nbsp;·&nbsp; DOB: {patientDOB}</>}
+                      &nbsp;·&nbsp; Start: {fmtDateLong(startDate)} &nbsp;·&nbsp; {phaseNums.length} phase{phaseNums.length !== 1 ? "s" : ""}
+                    </div>
+
+                    {/* Treatment areas by phase */}
+                    <div className="rp-section">
+                      <div className="rp-h blue">Treatment Areas by Phase</div>
+                      {phaseNums.map((ph, i) => {
+                        const pd = phaseData[ph];
+                        if (!pd) return null;
+                        const bg  = phaseBg[(i) % phaseBg.length];
+                        const col = phaseCol[(i) % phaseCol.length];
+                        return (
+                          <div key={ph} className="rp-phase" style={{background:bg,border:`1.5px solid ${col}22`}}>
+                            <div className="rp-phase-label" style={{color:col}}>Phase {ph} &nbsp;·&nbsp; {fmtDate(pd.start)} → {fmtDate(pd.end)} &nbsp;·&nbsp; {pd.durationWeeks} week{pd.durationWeeks!==1?"s":""}</div>
+                            {pd.zones.map(z => {
+                              const ind = d.indications[z.indication];
+                              if (!ind) return null;
+                              return (
+                                <div key={z.id} style={{marginBottom:10}}>
+                                  <div className="rp-phase-area">{z.label}</div>
+                                  <div style={{fontSize:12,color:col,fontWeight:500,marginBottom:4}}>{ind.label}</div>
+                                  <div className="rp-phase-rows">
+                                    <div className="rp-phase-row"><span>Frequency</span>{ind.freq}</div>
+                                    <div className="rp-phase-row"><span>Duration</span>{ind.durationLabel}</div>
+                                    <div className="rp-phase-row"><span>Reviews</span>{ind.review}</div>
+                                    <div className="rp-phase-row"><span>Endpoint</span>{ind.target}</div>
+                                  </div>
+                                  {z.notes.trim() && <div className="rp-phase-note">Doctor's notes: {z.notes}</div>}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Instructions */}
+                    <div className="rp-section">
+                      <div className="rp-h green">Instructions</div>
+                      {uniqueInds.map(indKey => {
+                        const ind = d.indications[indKey];
+                        if (!ind || !ind.instructions) return null;
+                        return (
+                          <div key={indKey} className="rp-inst-section">
+                            {uniqueInds.length > 1 && (
+                              <div className="rp-inst-label">{ind.label} — {indGroups[indKey].join(", ")}</div>
+                            )}
+                            <ol className="rp-inst-list">
+                              {ind.instructions.map(([key, text], i) => (
+                                <li key={key}>
+                                  <div className="rp-inst-num">{i+1}</div>
+                                  <div dangerouslySetInnerHTML={{__html: text}}/>
+                                </li>
+                              ))}
+                            </ol>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* When to seek review */}
+                    <div className="rp-section">
+                      <div className="rp-h red">⚠ When to Seek an Earlier Review</div>
+                      <div style={{fontSize:12.5,color:"#6B6157",marginBottom:12}}>
+                        The following are <strong>not</strong> normal parts of treatment. Stop the cream and contact us if any of these occur.
+                      </div>
+                      {warnItems.map(([bullet, col, head, body]) => (
+                        <div key={head} className="rp-warn-item">
+                          <div className="rp-warn-icon" style={{color:col}}>{bullet}</div>
+                          <div>
+                            <div className="rp-warn-head">{head}</div>
+                            <div className="rp-warn-body">{body}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Footer */}
+                    <div className="rp-footer">
+                      <span>Ongoing skin surveillance recommended every 6–12 months.</span>
+                      <span>Dr H. Balachandran MBBS · FRACGP</span>
+                    </div>
+
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+
+</script>
+</body>
+</html>
